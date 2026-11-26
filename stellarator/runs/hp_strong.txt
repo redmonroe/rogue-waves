@@ -1,0 +1,5 @@
+# 2026-11-26 13:54  seeds 100:108  kmax 9  digits 40  scratch 0  backend gmpy
+seed 100  K=4  sym_B     0.311  kill_u    0.0305  max|x| 1.0e+00  residual  6.66e-45  (2 passes, ok)  [0s]
+seed 100  K=5  sym_B     0.234  kill_u   0.00764  max|x| 2.6e+00  residual  6.74e-44  (2 passes, ok)  [0s]
+seed 100  K=6  sym_B     0.134  kill_u    0.0158  max|x| 1.6e+01  residual  2.43e-41  (2 passes, ok)  [1s]
+seed 100  K=7  sym_B    0.0766  kill_u   0.00604  max|x| 1.2e+03  residual   1.1e-43  (3 passes, ok)  [1s]
