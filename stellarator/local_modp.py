@@ -27,7 +27,12 @@ are symmetric changes and appear in all three rows alike.
 Special cases of the equilibrium, for contrast: --case vacuum (no pressure, no current),
 force-free (no pressure), F-constant (pressure, but toroidal field function constant).
 
-Usage:  python local_modp.py [--kmin 5] [--kmax 10] [--seed 0] [--prime 2147483647] [--case general]
+--equilibrium translation uses instead a field with a translation symmetry, a non-polynomial
+flux function (a sum of exponentials) and non-linear profiles; see translation().
+--equilibrium helical uses the uniformly twisting elliptical pinch (screw symmetry); see helical().
+
+Usage:  python local_modp.py [--kmin 5] [--kmax 10] [--seed 0] [--prime 2147483647]
+                             [--equilibrium solovev|translation|helical] [--case general]
 """
 import argparse
 import time
@@ -128,6 +133,80 @@ def solovev(J, rng, sign_F, sign_p, case="general"):
     return np.concatenate([f[mk] for f, mk in zip(fields, J.masks)]) % P
 
 
+def translation(J, rng, sign, case="general"):
+    """Taylor series mod P of a translation-symmetric equilibrium (nothing depends on z):
+    B = (A_y, -A_x, Bz), with flux function A = sum_i c_i exp(a_i x + b_i y), a_i^2 + b_i^2 = mu^2
+    (so that Laplacian A = mu^2 A), Bz^2 = b0^2 + b1 (A - A0) + b2 (A - A0)^2, and
+    p = sign mu^2 A^2 / 2 - Bz^2 / 2. Non-polynomial flux function, non-linear profiles.
+    u = (0, 0, -1), flux label A."""
+    P = J.P
+    m = J.mul
+    r = lambda: int(rng.integers(2, P - 1))
+    inv = lambda v: pow(int(v) % P, P - 2, P)
+    x, y = [np.zeros(J.N, dtype=np.int64) for _ in range(2)]
+    x[J.lin[0]] = 1
+    y[J.lin[1]] = 1
+    mu = r()
+    A = np.zeros(J.N, dtype=np.int64)
+    for _ in range(4):
+        # rational point on the circle a^2 + b^2 = mu^2:  a = mu (1 - t^2)/(1 + t^2), b = mu 2t/(1 + t^2)
+        t = r()
+        d = inv(1 + t * t)
+        a, b = mu * (1 - t * t) % P * d % P, mu * 2 * t % P * d % P
+        L = (a * x + b * y) % P
+        term, e, fact = J.const(1), J.const(1), 1
+        for n in range(1, J.K + 2):
+            term = m(term, L)
+            fact = fact * n % P
+            e = (e + term * inv(fact)) % P
+        A = (A + r() * e) % P
+    b0, b1, b2 = r(), r(), r()
+    if case == "F-constant":
+        b1 = b2 = 0
+    dA = (A - J.const(A[J.i0])) % P
+    Bz = J.sqrt((J.const(b0 * b0) + b1 * dA + b2 * m(dA, dA)) % P, b0)
+    B = [J.d(A, 1), (-J.d(A, 0)) % P, Bz]
+    u = [np.zeros(J.N, dtype=np.int64), np.zeros(J.N, dtype=np.int64), J.const(P - 1)]
+    half = inv(2)
+    p = (sign * mu * mu % P * half % P * m(A, A) - half * m(Bz, Bz)) % P
+    fields = B + u + [A, p]
+    return np.concatenate([f[mk] for f, mk in zip(fields, J.masks)]) % P
+
+
+def helical(J, rng, case="general"):
+    """Taylor series mod P of a helically symmetric equilibrium: the elliptical pinch twisting at
+    a uniform rate (the symmetric member of the twisted-pinch family of planar_family.py).
+    u = (-y, x, h); X, Y = coordinates turned by z/h; psi = a X^2 + b Y^2; C = u . B = 2 psi / h;
+    B = (u x grad psi + C u) / |u|^2; p = -2 (a + b) psi / h^2. Expanded about (x0, y0, 0)."""
+    P = J.P
+    m = J.mul
+    r = lambda: int(rng.integers(2, P - 1))
+    inv = lambda v: pow(int(v) % P, P - 2, P)
+    x0, y0, h, a, b = r(), r(), r(), r(), r()
+    x, y, z = J.const(x0), J.const(y0), np.zeros(J.N, dtype=np.int64)
+    x[J.lin[0]], y[J.lin[1]], z[J.lin[2]] = 1, 1, 1
+    w = z * inv(h) % P
+    c, s_, term, fact = J.const(1), np.zeros(J.N, dtype=np.int64), J.const(1), 1
+    for n in range(1, J.K + 2):
+        term = m(term, w)
+        fact = fact * n % P
+        t = term * inv(fact) % P
+        if n % 2:
+            s_ = (s_ + (t if n % 4 == 1 else -t)) % P
+        else:
+            c = (c + (t if n % 4 == 0 else -t)) % P
+    X, Y = (m(x, c) + m(y, s_)) % P, (m(y, c) - m(x, s_)) % P
+    psi = (a * m(X, X) + b * m(Y, Y)) % P
+    u = [(-y) % P, x % P, J.const(h)]
+    C = 2 * inv(h) % P * psi % P
+    iu2 = J.inv((m(x, x) + m(y, y) + J.const(h * h)) % P)
+    cr = J.cross(u, [J.d(psi, i) for i in range(3)])
+    B = [m((cr[i] + m(C, u[i])) % P, iu2) for i in range(3)]
+    p = (-2 * (a + b)) % P * inv(h * h) % P * psi % P
+    fields = B + u + [psi, p]
+    return np.concatenate([f[mk] for f, mk in zip(fields, J.masks)]) % P
+
+
 def jacobian(J, x):
     """Exact Jacobian mod P. The residual has degree <= 3 in the unknowns, so
     R'(x) v = [8 (R(x+v) - R(x-v)) - (R(x+2v) - R(x-2v))] / 12."""
@@ -191,23 +270,35 @@ if __name__ == "__main__":
     ap.add_argument("--kmax", type=int, default=10)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--prime", type=int, default=2147483647)
+    ap.add_argument("--equilibrium", default="solovev", choices=["solovev", "translation", "helical"])
     ap.add_argument("--case", default="general", choices=["general", "vacuum", "force-free", "F-constant"])
     a = ap.parse_args()
     P = a.prime
-    # fix the two sign conventions by which one makes the residual vanish
-    signs = None
-    for sF in (1, -1):
-        for sp in (1, -1):
+    # fix the sign conventions by which one makes the residual vanish
+    build = None
+    if a.equilibrium == "solovev":
+        for sF in (1, -1):
+            for sp in (1, -1):
+                J = Mod(4, "killing", P)
+                if not np.any(J.res(solovev(J, np.random.default_rng(a.seed), sF, sp))):
+                    build = lambda J, sF=sF, sp=sp: solovev(J, np.random.default_rng(a.seed), sF, sp, a.case)
+    elif a.equilibrium == "helical":
+        build = lambda J: helical(J, np.random.default_rng(a.seed), a.case)
+        assert not np.any(Mod(4, "killing", P).res(build(Mod(4, "killing", P))))
+    else:
+        for sg in (1, -1):
             J = Mod(4, "killing", P)
-            if not np.any(J.res(solovev(J, np.random.default_rng(a.seed), sF, sp, "general"))):
-                signs = (sF, sp)
-    print(f"case {a.case}, prime {P}, seed {a.seed}; sign conventions {signs} (residual vanishes mod p)", flush=True)
+            if not np.any(J.res(translation(J, np.random.default_rng(a.seed), sg))):
+                build = lambda J, sg=sg: translation(J, np.random.default_rng(a.seed), sg, a.case)
+    assert build is not None, "no sign convention makes the residual vanish"
+    print(f"equilibrium {a.equilibrium}, case {a.case}, prime {P}, seed {a.seed} (residual vanishes mod p)",
+          flush=True)
     for K in range(a.kmin, a.kmax + 1):
         t0 = time.time()
         rows = {}
         for name, mode in (("sym", "killing"), ("strong", "strong"), ("weak", "qs")):
             J = Mod(K, mode, P)
-            x = solovev(J, np.random.default_rng(a.seed), *signs, a.case)
+            x = build(J)
             assert not np.any(J.res(x)), f"{mode}: the equilibrium is not a solution mod p"
             rows[name] = counts(J, x, min(K - 1, 8))
         print(f"K={K}   [{time.time() - t0:.0f}s]", flush=True)
