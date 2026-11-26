@@ -61,8 +61,25 @@ def lopez(n_points=12, seed=0):
     T = dot(B, g)
     Nq = cross(B, cross(g, grad(T)))
     args = (x, y, z, zt, zb)
-    f = sp.lambdify(args, [[divB] + curl(B), Nq, curl(Nq), B], "mpmath", cse=True)
-    Gpoly = sp.lambdify(args, 2 * I * zt**3 + (wb + 2) * zt**2 - 2 * z * zt - w, "mpmath")
+    f = sp.lambdify(args, [[divB] + curl(B), Nq, B], "mpmath", cse=True)
+    Gs = 2 * I * zt**3 + (wb + 2) * zt**2 - 2 * z * zt - w
+    Gpoly = sp.lambdify(args, Gs, "mpmath")
+    Gnewton = sp.lambdify(args, [Gs, D], "mpmath")
+
+    def root_near(pt, z0):
+        """Follow the selected root of the cubic to a nearby point by Newton's method."""
+        zc = z0
+        for _ in range(60):
+            Gv, Dv = Gnewton(*pt, zc, mp.conj(zc))
+            step = Gv / Dv
+            zc -= step
+            if abs(step) < mp.mpf(10) ** (-mp.mp.dps + 5):
+                break
+        return zc
+
+    def Nfun(pt, z0):
+        zc = root_near(pt, z0)
+        return [mp.re(c) for c in f(*pt, zc, mp.conj(zc))[1]]
 
     rng = random.Random(seed)
     worst = dict(check=mp.mpf(0), frob=mp.mpf(0))
@@ -79,9 +96,11 @@ def lopez(n_points=12, seed=0):
         kappa = 4 * lam * u * (1 - v) / (1 + lam) ** 2
         pt = [(H.real * A[j] + H.imag * C[j]) / (1 + lam) ** 2 + (beta - kappa) * n[j] for j in range(3)]
         a = (*pt, z0, mp.conj(z0))
-        chk, Nn, cN, Bv = f(*a)
+        chk, Nn, Bv = f(*a)
         worst["check"] = max(worst["check"], abs(Gpoly(*a)), max(abs(c) for c in chk) / nrm(Bv))
-        Nn, cN = [mp.re(c) for c in Nn], [mp.re(c) for c in cN]
+        Nn = [mp.re(c) for c in Nn]
+        dN = lambda i, j: mp.diff(lambda t: Nfun([t if m == j else pt[m] for m in range(3)], z0)[i], pt[j])
+        cN = [dN(2, 1) - dN(1, 2), dN(0, 2) - dN(2, 0), dN(1, 0) - dN(0, 1)]
         if nrm(Nn) > 0 and nrm(cN) > 0:
             worst["frob"] = max(worst["frob"], abs(dot(Nn, cN)) / (nrm(Nn) * nrm(cN)))
     return worst

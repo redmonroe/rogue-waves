@@ -1,7 +1,5 @@
-field                                                                 mhs     triple       frob   (40 points each)
-Landreman iota=2, eps=0 (axisymmetric control)                    2.8e-40    2.8e-40    3.9e-40   [2s]
-Landreman iota=2, eps=1/4                                         3.2e-40    2.7e-01    8.5e-01   [3s]
-Landreman iota=2, eps=1/2                                         4.9e-40    8.2e-01    9.8e-01   [3s]
-Landreman sheared, eps=0, lam=1, S=1 (axisymmetric control)       2.3e-41    3.5e-41    2.5e-39   [7s]
-Landreman sheared, eps=1/2, lam=1, S=1                            2.9e-41    9.5e-01    8.8e-01   [27s]
-Landreman sheared, eps=1, lam=2, S=1/2                            3.4e-41    7.8e-01    8.6e-01   [26s]
+field                                                                       mhs     triple       frob   (40 points each)
+Landreman iota=2, eps=0 (axisymmetric control)                          2.8e-40    2.8e-40    3.9e-40   [3s]
+Landreman iota=2, eps=1/4                                               3.2e-40    2.7e-01    8.5e-01   [4s]
+Landreman iota=2, eps=1/2                                               4.9e-40    8.2e-01    9.8e-01   [4s]
+Landreman sheared, eps=0, lam=1, S=1 (axisymmetric control)             2.3e-41    3.5e-41    2.5e-39   [9s]

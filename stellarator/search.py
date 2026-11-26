@@ -91,7 +91,39 @@ def family_sheared():
     )
 
 
-FAMILIES = dict(deg2=family_deg2, sheared=family_sheared)
+def family_iota2():
+    """The stretched degree-2 family in normalised form: Issan et al., arXiv:2610.07304, sec. 2
+    (Landreman's iota=2 family plus the symmetry-breaking parameter tau0).
+    `deg2` above is this same family with four redundant scaling parameters, and its fixed
+    sample box can zoom into a thin sliver of a very large torus, where any field looks nearly
+    symmetric. Here the torus has a fixed size, so the sample box always covers it."""
+    tau0, eps = sp.symbols("tau0 epsilon", real=True)
+    a, b = sp.sqrt(1 + eps), sp.sqrt(1 - eps)
+    s = x**2 / a**2 + y**2 / b**2
+    G = 1 - (1 - s) ** 2 - 4 * z**2 - 4 * tau0 * s * z
+    F = sp.sqrt(G)
+    B = sp.Matrix([((2 * z + tau0 * s) * x - (a / b) * F * y) / s,
+                   ((2 * z + tau0 * s) * y + (b / a) * F * x) / s,
+                   1 - s - 2 * tau0 * z])
+    return dict(params=[tau0, eps], bounds=[(-0.9, 0.9), None], asym_max=0.9,
+                B=B, valid=[G, s], box=[(-2.0, 2.0), (-2.0, 2.0), (-1.2, 1.2)])
+
+
+def family_sheared4():
+    """Sheared family with the symmetry-breaking phase tau1 (Issan et al., arXiv:2610.07304, sec. 3)."""
+    lam, S, tau1, eps = sp.symbols("lambda S tau1 epsilon", real=True)
+    w, wb = x + sp.I * y, x - sp.I * y
+    rad = 1 + eps / wb**2
+    K = wb * sp.sqrt(rad)
+    Xi = w * K + sp.pi / 2 - S + sp.I * tau1
+    h = sp.I * sp.exp(-sp.I * lam * z) * sp.sin(Xi) / (2 * K)
+    c = _re(sp.exp(-sp.I * lam * z) * sp.cos(Xi))
+    B = sp.Matrix([_re(h), _im(h), c / lam])
+    return dict(params=[lam, S, tau1, eps], bounds=[(0.3, 3.0), (0.0, math.pi), (-1.5, 1.5), None], asym_max=2.0,
+                B=B, valid=[_re(rad), x**2 + y**2], box=[(-1.5, 1.5), (-1.5, 1.5), (-1.0, 1.0)])
+
+
+FAMILIES = dict(iota2=family_iota2, sheared4=family_sheared4, deg2=family_deg2, sheared=family_sheared)
 
 # ---------------------------------------------------------------- objective
 
@@ -122,15 +154,17 @@ def _N(P, params):
 
 def objective(params, h=1e-5, margin=0.05, min_valid=40, detail=False):
     P = _STATE["pts"]
-    if any(not (c > margin) for c in _STATE["param_valid"](*params)):
-        return (1.0, 0) if detail else 1.0
+    viol = sum(max(0.0, margin - c) for c in _STATE["param_valid"](*params))
+    if viol > 0:
+        return (1.0 + viol, 0) if detail else 1.0 + viol
     with np.errstate(all="ignore"):
         v = _STATE["valid"](P[:, 0], P[:, 1], P[:, 2], *params)
         ok = np.ones(P.shape[0], dtype=bool)
         for c in v:
             ok &= np.real(np.broadcast_to(np.asarray(c, dtype=complex), P.shape[0])) > margin
         if ok.sum() < min_valid:
-            return (1.0, 0) if detail else 1.0
+            pen = 1.0 + (min_valid - int(ok.sum())) / min_valid
+            return (pen, 0) if detail else pen
         Q = P[ok]
         N0 = _N(Q, params)
         J = np.empty((Q.shape[0], 3, 3))  # J[:, i, j] = d N_i / d x_j
@@ -153,7 +187,7 @@ def objective(params, h=1e-5, margin=0.05, min_valid=40, detail=False):
 def _restart(job):
     index, asym_min, maxiter, seed = job
     fam = _STATE["fam"]
-    bounds = [(asym_min, 0.8) if b is None else b for b in fam["bounds"]]
+    bounds = [(asym_min, fam.get("asym_max", 0.8)) if b is None else b for b in fam["bounds"]]
     t0 = time.time()
     de = differential_evolution(objective, bounds, seed=seed + index, maxiter=maxiter, popsize=12,
                                 tol=1e-10, polish=False, init="sobol")
@@ -186,7 +220,7 @@ def report(path, flag):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--family", choices=sorted(FAMILIES), default="deg2")
+    ap.add_argument("--family", choices=sorted(FAMILIES), default="iota2")
     ap.add_argument("--restarts", type=int, default=16, help="number of restarts (ignored with --hours)")
     ap.add_argument("--hours", type=float, default=None, help="keep launching restarts for this long")
     ap.add_argument("--workers", type=int, default=os.cpu_count())

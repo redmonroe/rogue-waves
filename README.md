@@ -18,11 +18,16 @@ for a quasisymmetric closed-form equilibrium, with Lean certifying anything foun
 | Item | State |
 |---|---|
 | Residual tool (`stellarator/qs_residuals.py`) | Working. Checks equilibrium and two quasisymmetry residuals at 40-digit precision |
-| Landreman's iota=2 family (arXiv:2609.26742, sec. 2) | Exact equilibrium; **not quasisymmetric** at eps = 1/4, 1/2 (numerical, not a proof) |
-| Landreman's sheared family (sec. 3) | Exact equilibrium; **not quasisymmetric** at the two parameter sets tried (numerical) |
-| Other published closed-form families (arXiv:2610.07304, 2610.29921, 2611.07672, 2611.31603) | Not yet transcribed or tested |
+| Landreman's iota=2 family (arXiv:2609.26742, sec. 2) | Exact equilibrium; **not quasisymmetric** (numerical, not a proof) |
+| Landreman's sheared family (arXiv:2609.26742, sec. 3) | Exact equilibrium; **not quasisymmetric** at the parameter sets tried (numerical) |
+| Issan et al. iota=2 family with broken stellarator symmetry (arXiv:2610.07304, sec. 2) | Exact equilibrium; **not quasisymmetric anywhere in the family**: a scan of both parameters (`scan_iota2.py`) gives a residual of 0.23 or more whenever eps >= 0.2, falling only as eps -> 0 (numerical) |
+| Issan et al. sheared family with broken stellarator symmetry (arXiv:2610.07304, sec. 3) | Exact equilibrium; **not quasisymmetric** at the parameter sets tried (numerical). Four parameters; a full search (`--family sheared4`) has not been run |
+| Lopez vacuum field (arXiv:2610.29921) | Curl-free and divergence-free to 40 digits; **not quasisymmetric** (numerical, 12 points) |
+| Issan et al. N-field-period family (arXiv:2611.07672) | See `stellarator/qs_other_families_output.txt` |
+| Sengupta et al. force-free family (arXiv:2611.31603) | **Not testable yet**: the letter defers the closed-form functions F, G, H to a companion paper that is not on arXiv |
+| Sengupta et al. vacuum family (arXiv:2610.28466), de Lacy and Sato (arXiv:2611.16688, a series, not a closed form) | Not yet looked at |
 | Seed search (`stellarator/seeds.py`) | Working. Exact algebra: finds every polynomial axisymmetric seed of a given degree whose stretched versions are 3D equilibria. Degree 2 gives a 4-parameter family containing Landreman's seed; degrees 2 and 3 only give frequency ratio 2 |
-| Overnight search (`stellarator/search.py`) | Working: parallel, seeded, resumable. Only short test runs so far (3 restarts, best residual 3e-3, no candidates). **No real search has been run yet** |
+| Overnight search (`stellarator/search.py`) | Working: parallel, seeded, resumable. One real run so far: `deg2`, 531 restarts, no candidates (`runs/deg2.jsonl`). **That run's small residuals (about 1e-4) are an artifact**: `deg2` is the two-parameter Issan iota=2 family with four redundant scalings, and its fixed sample box could zoom into a sliver of a very large torus. Use `--family iota2` or `scan_iota2.py` for that family instead |
 | Candidate checker (`stellarator/check_candidate.py`) | Working. Re-checks a search result at 40 digits |
 | Lean proof generator (`stellarator/leangen.py`) | Working for fields built from + - * /, powers, named rational sub-expressions and one square root. No sin/cos/exp yet, so it cannot do the sheared family |
 | Lean: Landreman iota=2 field is divergence-free and in force balance (`Stellarator/Generated/LandremanIota2.lean`) | **Proved**, generated, standard axioms only. Stated with one-variable partial derivatives; not yet linked to the operators in `Defs.lean` |
@@ -43,9 +48,12 @@ From `stellarator/`, with `PY=../.venv/bin/python`:
     $PY test_search.py                      # sanity check of the search objective (seconds)
     $PY test_leangen.py                     # the generator must reject a false identity
     $PY seeds.py 2                          # exact seed search, polynomial degree 2
-    $PY search.py --family deg2 --hours 8   # overnight search, all cores, appends to runs/deg2.jsonl
-    $PY search.py --report runs/deg2.jsonl  # summary: best residual at each asymmetry level
-    $PY check_candidate.py deg2 runs/deg2.jsonl   # 40-digit check of the best result
+    $PY scan_iota2.py                       # scan the whole two-parameter iota=2 family (seconds)
+    $PY qs_residuals.py 40                  # residual table for the explicit families (minutes)
+    $PY qs_other_families.py                # same for the vacuum and N-field-period families
+    $PY search.py --family sheared4 --hours 8   # overnight search, all cores, appends to runs/sheared4.jsonl
+    $PY search.py --report runs/sheared4.jsonl  # summary: best residual at each asymmetry level
+    $PY check_candidate.py sheared4 runs/sheared4.jsonl   # 40-digit check of the best result
     $PY gen_landreman_iota2.py              # regenerate the Lean certificate
     cd ../RogueWaves && lake build          # check every Lean proof
 
@@ -57,14 +65,17 @@ then pass `check_candidate.py`; the float search bottoms out near 1e-8.
 
 ### Next steps, in order
 
-1. Run the overnight search on `deg2` and read the report.
-2. Transcribe and test the remaining published closed-form families.
-3. Lean: link the generated certificate to the operators in `Defs.lean`, giving a first
+1. Run the overnight search on `sheared4` (the only published explicit family with enough
+   parameters to need one) and read the report.
+2. Test the Sengupta et al. vacuum family (arXiv:2610.28466); test their force-free family
+   when the companion paper appears.
+3. New recipes for the search. Every published closed-form family tested so far fails the
+   quasisymmetry test, so the search now needs families nobody has written down.
+4. Lean: link the generated certificate to the operators in `Defs.lean`, giving a first
    `IsMHSOn` instance (this also shows the definition is not empty).
-4. Lean: prove the axisymmetric member satisfies `IsQSTripleOn` and `IsWeakQSOn`; confirm by
+5. Lean: prove the axisymmetric member satisfies `IsQSTripleOn` and `IsWeakQSOn`; confirm by
    computer algebra that the stretched member fails. This is the two-sided test of the definitions.
-5. Extend the proof generator to sin/cos/exp so it can certify the sheared family.
-6. New recipes for the search (the current families have at most six parameters).
+6. Extend the proof generator to sin/cos/exp so it can certify the sheared families.
 7. Have the statement file reviewed adversarially, then by an outside reader.
 8. Hard stop at the end of the second usage reset unless a candidate's residual vanishes identically.
 
@@ -74,6 +85,8 @@ then pass `check_candidate.py`; the float search bottoms out near 1e-8.
 - Landreman's iota=2 family has closed field lines, so its flux label is not unique. Use the
   `frob` residual, which does not depend on the label, before concluding anything from `triple`.
 - A failed search is not evidence of non-existence.
+- A search family must have a fixed overall size. If the optimiser can shrink the sampled
+  region relative to the torus, it will, and the residual falls without the field being symmetric.
 - In the `deg2` family, parameters with `4*c02*c20 - c11**2 <= 0` give unbounded field lines and
   spurious small residuals (about 1e-6, not zero). The search excludes them.
 
