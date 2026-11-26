@@ -13,7 +13,7 @@ export PATH="$HOME/.elan/bin:$PATH"
 
 # 3. Python env for reading the data
 [ -d .venv ] || python3 -m venv .venv
-.venv/bin/pip install -q pyarrow sympy mpmath
+.venv/bin/pip install -q pyarrow sympy mpmath numpy scipy
 
 # 4. Rogue wave data (optional): 157 parquet files, 6.2 GB, from erda.ku.dk (resumable)
 if [ "$1" = "--data" ]; then bash fetch_data.sh; fi

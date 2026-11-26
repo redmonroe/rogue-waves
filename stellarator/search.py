@@ -67,6 +67,9 @@ def family_deg2():
         params=[c02, c10, c11, c20, m, al],
         bounds=[(-2, 2), (-2, 2), (-2, 2), (-2, 2), (0.5, 2.0), None],  # None = asymmetry slot
         B=B, valid=[I2x, uu], box=[(-2.0, 2.0), (-2.0, 2.0), (-1.0, 1.0)],
+        # d1 > 0: field lines are harmonic oscillators (bounded). d1 <= 0 gives unbounded field
+        # lines, where the optimiser otherwise finds meaningless small residuals.
+        param_valid=[d1],
         reference=dict(c02=-1, c10=0.5, c11=0, c20=-0.25, m=1.0),
     )
 
@@ -108,6 +111,7 @@ def _init(family_name, n_points, seed):
         fam=fam, pts=pts,
         N=sp.lambdify(args, list(N), "numpy", cse=True),
         valid=sp.lambdify(args, fam["valid"], "numpy", cse=True),
+        param_valid=sp.lambdify(fam["params"], fam.get("param_valid", []), "math"),
     )
 
 
@@ -118,6 +122,8 @@ def _N(P, params):
 
 def objective(params, h=1e-5, margin=0.05, min_valid=40, detail=False):
     P = _STATE["pts"]
+    if any(not (c > margin) for c in _STATE["param_valid"](*params)):
+        return (1.0, 0) if detail else 1.0
     with np.errstate(all="ignore"):
         v = _STATE["valid"](P[:, 0], P[:, 1], P[:, 2], *params)
         ok = np.ones(P.shape[0], dtype=bool)
