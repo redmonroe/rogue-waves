@@ -8,3 +8,4 @@ qs       K= 9  freedom in B, k=1.. :    7   18   33   49   59   68   82  103   s
 qs       K=10  freedom in B, k=1.. :    7   18   33   49   57   62   71   86  109   sym_B 2.16e-01  kill_u 3.37e-01  residual 2.6e-15  min log10 gap  6.4   [5s]
 qs       K=11  freedom in B, k=1.. :    7   18   33   49   54   56   60   69   85   sym_B 1.96e-01  kill_u 3.44e-01  residual 1.8e-15  min log10 gap  5.2   [9s]
 qs       K=12  freedom in B, k=1.. :    7   18   33   47   47   47   49   52   61   sym_B 1.56e-01  kill_u 2.70e-01  residual 1.5e-13  min log10 gap  4.4   [16s]
+qs       K=13  freedom in B, k=1.. :    7   18   33   33   33   33   33   35   37   sym_B 7.09e-02  kill_u 1.59e-01  residual 1.3e-15  min log10 gap  3.7   [28s]

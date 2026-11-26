@@ -139,7 +139,28 @@ order K; solutions found numerically and carried up one order at a time.
 Trust: numerical, truncated series, double precision. Reliable while `min log10 gap` is above
 about 3 (it is 5.2 at order 11).
 Evidence: `stellarator/local_jets_project_output.txt`, `local_jets_count_output.txt`.
-In progress: order 14 in the cloud session; order 16 to be run on the Mac.
+
+**Local test, orders 12 and 13: the freedom collapses.**
+Stable method, same solution carried upward:
+
+| K | k=3 | k=4 | k=5 | k=6 | k=7 | symmetry measure of the solution | min log10 gap |
+|---|---|---|---|---|---|---|---|
+| 10 | 33 | 49 | 57 | 62 | 71 | 0.22 | 6.4 |
+| 11 | 33 | 49 | 54 | 56 | 60 | 0.20 | 5.2 |
+| 12 | 33 | 47 | 47 | 47 | 49 | 0.16 | 4.4 |
+| 13 | 33 | 33 | 33 | 33 | 33 | 0.07 | 3.7 |
+
+- At order 13 the count is flat from degree 3 to degree 7: every coefficient of B above degree 3
+  is fixed by the lower ones. That is a finite-parameter family, and it lost 14 parameters
+  between orders 12 and 13.
+- The carried solution's symmetry measure is falling at the same time (0.22 to 0.07).
+- Reading: the non-symmetric solutions seen at low order look like an effect of truncation that
+  the higher-order equations are removing. Whether anything non-symmetric survives is not yet
+  known; the trend points toward the equations forcing symmetry near a point.
+- Caveats: one carried solution (seed 0) at orders 12 and 13; the gap at order 13 (3.7) is close
+  to the limit of what double precision can resolve; no proof.
+In progress: orders 14 and 15 in the cloud session, with checkpoints in `stellarator/runs/` so
+any machine can resume after a `git pull`. Order 16 on the Mac.
 
 **Not completed today.**
 - Calibration run (lost in a restart).

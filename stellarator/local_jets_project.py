@@ -102,17 +102,30 @@ def projected_counts(J, x, kmax):
     return [out[k] for k in range(1, kmax + 1)], (min(gaps) if gaps else np.inf)
 
 
-def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print):
+def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print, ckpt_dir="runs"):
+    """Carry one solution up order by order. Each order's solution is saved, so a later run
+    (here or on another machine, after a git pull) resumes from the highest saved order."""
+    import os
+    os.makedirs(ckpt_dir, exist_ok=True)
+    path = lambda K: os.path.join(ckpt_dir, f"local_{mode}_seed{seed}_K{K}.npy")
     rng = np.random.default_rng(seed)
-    J = Variant(Kstart, mode)
-    for _ in range(20):
-        x, nr, _ = J.solve(rng)
-        if nr < 1e-10:
-            break
+    saved = [K for K in range(Kstart, Kmax + 1) if os.path.exists(path(K))]
+    if saved:
+        K = max(saved)
+        J = Variant(K, mode)
+        x = np.load(path(K))
+        out(f"{mode}: resuming from saved order {K}")
     else:
-        out(f"{mode}: no solution found at order {Kstart}")
-        return
-    K = Kstart
+        K = Kstart
+        J = Variant(K, mode)
+        for _ in range(20):
+            x, nr, _ = J.solve(rng)
+            if nr < 1e-10:
+                break
+        else:
+            out(f"{mode}: no solution found at order {Kstart}")
+            return
+        np.save(path(K), x)
     while True:
         t0 = time.time()
         dims, gap = projected_counts(J, x, min(kmax, K - 1))
@@ -122,6 +135,7 @@ def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print):
         if K == Kmax:
             return
         Jn = Variant(K + 1, mode)
+        t0 = time.time()
         xn, nr, it = Jn.solve(rng, x0=Jn.extend_from(J, x, rng, noise=0.0))
         if nr > 1e-10:
             xn, nr, it = Jn.solve(rng, x0=Jn.extend_from(J, x, rng, noise=1e-2))
@@ -129,6 +143,8 @@ def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print):
             out(f"{mode:8s} K={K + 1:2d}  could not be extended (residual {nr:.1e} after {it} iterations)")
             return
         J, x, K = Jn, xn, K + 1
+        np.save(path(K), x)
+        out(f"         extended to order {K} in {it} Newton steps, {time.time() - t0:.0f}s")
 
 
 if __name__ == "__main__":
