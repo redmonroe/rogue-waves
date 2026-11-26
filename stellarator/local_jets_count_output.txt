@@ -6,3 +6,4 @@ qs       K= 7  free dims   286  B-polynomial freedom k=1.. :    7   18   33   49
 qs       K= 8  free dims   342  B-polynomial freedom k=1.. :    7   18   33   49   61   74   93  118  sym_B(deg<=2) 2.59e-01  kill_u 3.69e-01   [16s]
 qs       K= 9  free dims   399  B-polynomial freedom k=1.. :    7   18   33   49   59   68   82  103  130  sym_B(deg<=2) 2.20e-01  kill_u 3.70e-01   [24s]
 qs       K=10  free dims   456  B-polynomial freedom k=1.. :    7   18   33   49   57   62   71   86  109  sym_B(deg<=2) 2.16e-01  kill_u 3.37e-01   [34s]
+qs       K=11  free dims   512  B-polynomial freedom k=1.. :    7   18   33   47   53   56   60   69   85  sym_B(deg<=2) 1.96e-01  kill_u 3.44e-01   [13s]
