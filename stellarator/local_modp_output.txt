@@ -75,3 +75,47 @@ K=10   [155s]
    sym      11   17   21   25   29   33   37   41
    strong   11   17   21   25   29   33   37   41
    weak     11   23   38   49   54   61   72   89
+
+equilibrium translation, case general, prime 2147483647, seed 0 (residual vanishes mod p)
+K=7   [10s]
+   sym      11   17   21   25   29   33
+   strong   11   19   23   27   31   37
+   weak     11   23   38   52   66   85
+K=8   [20s]
+   sym      11   17   21   25   29   33   37
+   strong   11   17   21   25   29   33   39
+   weak     11   23   38   51   62   77   98
+K=9   [38s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   43
+   weak     11   23   38   50   58   69   85  108
+K=10   [72s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   49   54   61   72   89
+K=11   [130s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   45   49   53   59   70
+
+equilibrium helical, case general, prime 2147483647, seed 0 (residual vanishes mod p)
+K=7   [11s]
+   sym      11   17   21   25   29   33
+   strong   11   19   23   27   31   37
+   weak     11   23   38   52   66   85
+K=8   [21s]
+   sym      11   17   21   25   29   33   37
+   strong   11   17   21   25   29   33   39
+   weak     11   23   38   51   62   77   98
+K=9   [38s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   43
+   weak     11   23   38   50   58   69   85  108
+K=10   [70s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   48   54   61   72   89
+K=11   [131s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   36   41   47   53   59   70

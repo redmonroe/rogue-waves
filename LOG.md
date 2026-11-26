@@ -22,10 +22,12 @@ In order. Move an item to the log when it is done.
 1. **Strong form: from evidence to proof.** State of play: seven numerical solutions all end
    symmetric by order 9 (checked to 40 digits where polished), and exact arithmetic shows
    nothing branches off a Solov'ev equilibrium to first order. Next, in order:
-   (a) finish the eight-seed extended-precision batch, and solve from scratch at order 8 and 9
-   (`local_strong_hp.py --scratch 8`);
-   (b) first-order count at other symmetric equilibria: helical symmetry, non-polynomial flux
-   function, other points (does it hold everywhere on the symmetric family?);
+   (a) in progress: sixteen-seed batch on the Mac (`runs/hp_strong_mac.txt`), and six solves
+   from random starts directly at order 9 in the cloud (`runs/hp_strong_scratch9.txt`). A test
+   at order 6 from random starts found non-symmetric solutions (0.98, 0.78), as expected there;
+   (b) done for three types (rotation, translation, screw); still open: a screw-symmetric
+   equilibrium whose field lines are not planar (needs series solutions of the helical
+   Grad-Shafranov equation);
    (c) the same first-order question over the rationals with certificates (a non-zero minor mod
    p proves a rank lower bound; explicit kernel vectors prove the upper bound), then Lean for
    the statement at one equilibrium;
@@ -409,6 +411,15 @@ every row).
   cases: vacuum, force-free (no pressure), and constant F.
 - The weak form keeps extra first-order changes (9 more at order 12, possibly still falling),
   as expected from the planar family.
+- Two more types of symmetric equilibrium give the same result (strong count = symmetric count
+  at every degree up to 8 from order 10; checked to order 11):
+  - translation symmetry, flux function a sum of four exponentials (non-polynomial), pressure
+    and axial field non-linear in the flux;
+  - screw symmetry: the elliptical pinch twisting at a uniform rate (the symmetric member of
+    the twisted-pinch family). Looked for a screw-symmetric equilibrium with an axial field and
+    quadratic flux function: SymPy finds none, only the pinch.
+  The weak counts differ slightly between the three types at orders 10 and 11; the strong and
+  symmetric counts are identical in all of them.
 - What this shows: at these equilibria, every first-order change that keeps force balance and
   strong quasisymmetry is itself symmetric, through degree 8. No non-symmetric family can leave
   these equilibria smoothly.
