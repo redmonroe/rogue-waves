@@ -14,7 +14,7 @@ Usage:  python local_extend.py K [seed] [max_steps] [mode]   extends runs/local_
 import os
 import sys
 import time
-from multiprocessing import Pool
+import multiprocessing
 
 import numpy as np
 
@@ -36,9 +36,14 @@ def _cols(idx):
 
 def jacobian(J, x, workers):
     global _J, _x
+    if not hasattr(J, "neq"):
+        J.neq = len(J.residual(x))
     _J, _x = J, x
+    if workers <= 1:
+        return _cols(np.arange(J.nvar)).T
     chunks = np.array_split(np.arange(J.nvar), workers * 8)
-    with Pool(workers) as pool:  # fork: the workers see _J and _x
+    # "fork" explicitly: the workers must inherit _J and _x, and macOS defaults to "spawn"
+    with multiprocessing.get_context("fork").Pool(workers) as pool:
         parts = pool.map(_cols, chunks)
     return np.vstack(parts).T
 
