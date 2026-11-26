@@ -1,0 +1,77 @@
+prime 2147483647, seed 0; sign conventions (-1, -1) (residual vanishes mod p)
+K=8   [21s]
+   sym      11   17   21   25   29   33   37
+   strong   11   17   21   25   29   33   39
+   weak     11   23   38   51   62   77   98
+K=9   [41s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   43
+   weak     11   23   38   50   58   69   85  108
+K=10   [76s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   49   54   61   72   89
+K=11   [144s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   45   49   53   59   70
+K=12   [296s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   30   34   38   42   46   51
+
+case general, prime 2147483629, seed 1; sign conventions (-1, -1) (residual vanishes mod p)
+K=8   [44s]
+   sym      11   17   21   25   29   33   37
+   strong   11   17   21   25   29   33   39
+   weak     11   23   38   51   62   77   98
+K=9   [86s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   43
+   weak     11   23   38   50   58   69   85  108
+K=10   [158s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   49   54   61   72   89
+
+case vacuum, prime 2147483647, seed 0; sign conventions (-1, -1) (residual vanishes mod p)
+K=8   [44s]
+   sym      11   17   21   25   29   33   37
+   strong   11   17   21   25   29   33   39
+   weak     11   23   38   51   62   77   98
+K=9   [86s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   43
+   weak     11   23   38   50   58   69   85  108
+K=10   [156s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   49   54   61   72   89
+
+case force-free, prime 2147483647, seed 0; sign conventions (-1, -1) (residual vanishes mod p)
+K=8   [46s]
+   sym      11   17   21   25   29   33   37
+   strong   11   17   21   25   29   33   39
+   weak     11   23   38   51   62   77   98
+K=9   [86s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   43
+   weak     11   23   38   50   58   69   85  108
+K=10   [156s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   49   54   61   72   89
+
+case F-constant, prime 2147483647, seed 0; sign conventions (-1, -1) (residual vanishes mod p)
+K=8   [43s]
+   sym      11   17   21   25   29   33   37
+   strong   11   17   21   25   29   33   39
+   weak     11   23   38   51   62   77   98
+K=9   [86s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   43
+   weak     11   23   38   50   58   69   85  108
+K=10   [155s]
+   sym      11   17   21   25   29   33   37   41
+   strong   11   17   21   25   29   33   37   41
+   weak     11   23   38   49   54   61   72   89

@@ -19,18 +19,18 @@ symmetry error vanishes identically.
 
 In order. Move an item to the log when it is done.
 
-1. **Local test in the strong form.** This is the local version of an open question stated by
-   Burby, Kallinikos and MacKay: is every (strong) quasisymmetry of an equilibrium a rigid
-   motion? The strong system has far less freedom, so the answer may show at order 8 to 10
-   instead of 14. If the equations at some finite order force the stretching part of grad u to
-   vanish, that is a finite algebraic statement and a candidate for an exact proof and a Lean
-   certificate. Done so far: seven solutions, all ending on the symmetric family by order 9
-   (log). Next: (a) solve from scratch at order 8 and 9, and repeat in extended precision
-   (mpmath or a quad-precision library; this is the run for the Mac); (b) a well-scaled symmetric
-   solution from a closed form (as `local_planar_check.py` does for the planar family) and the
-   first-order count there; (c) if both agree, exact rational arithmetic for the first-order
-   statement at order 8 to 10, then Lean. Note what (c) would and would not prove: that nothing
-   non-symmetric branches off that symmetric solution, not that no non-symmetric solution exists.
+1. **Strong form: from evidence to proof.** State of play: seven numerical solutions all end
+   symmetric by order 9 (checked to 40 digits where polished), and exact arithmetic shows
+   nothing branches off a Solov'ev equilibrium to first order. Next, in order:
+   (a) finish the eight-seed extended-precision batch, and solve from scratch at order 8 and 9
+   (`local_strong_hp.py --scratch 8`);
+   (b) first-order count at other symmetric equilibria: helical symmetry, non-polynomial flux
+   function, other points (does it hold everywhere on the symmetric family?);
+   (c) the same first-order question over the rationals with certificates (a non-zero minor mod
+   p proves a rank lower bound; explicit kernel vectors prove the upper bound), then Lean for
+   the statement at one equilibrium;
+   (d) literature: is the local first-order statement known? Read Plunk and Helander 2018 and
+   Plunk 2020 (finite pressure) in full.
 2. **Recipe type 2, continued: look for a version with rotational transform.** The planar
    family works because the symmetry flow is a rigid motion on each plane and B lies in the
    planes. Try: symmetry fields of the form u = K0 + f K1 + ... (K rigid motions, f functions),
@@ -350,6 +350,57 @@ carried upward. Symmetry measure of B at each order:
   found from scratch at order 9 (only solutions carried up from order 4), other normalisations,
   higher precision.
 Evidence: `stellarator/local_strong_seeds_output.txt`.
+
+**Extended-precision check of the strong-form runs (`local_strong_hp.py`).**
+Residual evaluated with mpmath at 40 digits; Newton corrections from the double-precision
+Jacobian (mixed-precision refinement, a few passes, seconds per solution). Fast enough to run in
+the cloud session; no Mac run needed.
+- Seed 11: at order 7 a genuine non-symmetric solution (residual 4e-45, symmetry measure 0.105);
+  at order 8 symmetric to 39 digits (2.6e-39; double precision could only say 1e-14).
+- Seed 13 at order 9: symmetric to 40 digits (1.0e-40).
+- So the non-symmetric solutions at orders up to 7 are real solutions of the truncated equations,
+  and the symmetric endings are exact, not rounding.
+- A fresh batch of eight seeds (100 to 107) was started; results in `runs/hp_strong.txt` when done.
+
+**Exact arithmetic: nothing non-symmetric branches off an axisymmetric equilibrium, to first
+order, under the strong form (`local_modp.py`).**
+Setup: a Solov'ev equilibrium (polynomial flux function, pressure linear in psi, F^2 linear in
+psi) with random parameters, expanded about a random point; u is the rotation. All arithmetic
+with integers modulo a prime: the Taylor coefficients, the residuals (zero mod p for all three
+systems: checked), the Jacobian, and Gaussian elimination. No rounding, no cutoffs.
+Count = number of first-order changes of the Taylor polynomial of B of degree <= k that keep the
+field a solution (no normalisation, so moving, turning and rescaling the field are included in
+every row).
+
+| order K | system | k=1 | k=2 | k=3 | k=4 | k=5 | k=6 | k=7 | k=8 |
+|---|---|---|---|---|---|---|---|---|---|
+| any | symmetric | 11 | 17 | 21 | 25 | 29 | 33 | 37 | 41 |
+| 6 | strong | 11 | 21 | 28 | 32 | 38 | | | |
+| 7 | strong | 11 | 19 | 23 | 27 | 31 | 37 | | |
+| 8 | strong | 11 | 17 | 21 | 25 | 29 | 33 | 39 | |
+| 10, 11, 12 | strong | 11 | 17 | 21 | 25 | 29 | 33 | 37 | 41 |
+| 12 | weak | 11 | 23 | 30 | 34 | 38 | 42 | 46 | 51 |
+
+- From order 10 on, the strong count equals the symmetric count at every degree up to 8, and
+  stays there at orders 11 and 12.
+- Same numbers with a second prime and a second set of random parameters, and in three special
+  cases: vacuum, force-free (no pressure), and constant F.
+- The weak form keeps extra first-order changes (9 more at order 12, possibly still falling),
+  as expected from the planar family.
+- What this shows: at these equilibria, every first-order change that keeps force balance and
+  strong quasisymmetry is itself symmetric, through degree 8. No non-symmetric family can leave
+  these equilibria smoothly.
+- What it does not show: (1) it is first order only, and only at symmetric equilibria of this
+  one type (axisymmetric, Solov'ev); (2) non-symmetric solutions far from any symmetric one are
+  not excluded by it (the seven-seed runs above are the only evidence there); (3) it is exact
+  arithmetic on random instances mod p, not a proof over the rationals: a proof needs rank
+  certificates.
+- Known related result: Plunk and Helander, J. Plasma Phys. 84 (2018), show by expansion that
+  non-axisymmetric, globally quasi-axisymmetric vacuum fields close to axisymmetry do not exist
+  (they exist on a single surface only). Ours is the same conclusion at a point instead of on a
+  torus, with pressure and current, in exact arithmetic. Whether the local version is in the
+  literature: not checked.
+Evidence: `stellarator/local_modp_output.txt`.
 
 **The strong system, reduced by hand (not machine-checked).**
 With force balance, strong quasisymmetry, and u . grad p = 0: curl B = -C'(psi) B - p'(psi) u

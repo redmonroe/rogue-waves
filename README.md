@@ -26,6 +26,8 @@ From `stellarator/`, with `PY=../.venv/bin/python`:
     $PY local_jets_project.py 12 qs 0       # local Taylor-series test, stable count, orders 3 to 12
     $PY local_extend.py 13                  # carry the saved order-13 solution to order 14, with a log
     $PY local_planar_check.py               # run the local test on the exact non-symmetric solution
+    $PY local_modp.py --kmin 8 --kmax 10    # exact arithmetic mod p: first-order rigidity at a Solov'ev equilibrium
+    $PY local_strong_hp.py --seeds 100:104  # strong form with 40-digit checking at every order
     $PY local_strong_ladder.py 4 9 1        # strong form: carry the saved seed-1 solution up, with counts
     $PY planar_family.py                    # exact non-symmetric quasisymmetric families: check all equations
     $PY gen_twisted_pinch.py                # regenerate the Lean certificate for the twisted pinch

@@ -24,7 +24,10 @@ p = s' A psi, u = (y, -x, 0), expanded about a random point with random paramete
 normalisation is imposed, so the counts include moving, turning and rescaling the field; these
 are symmetric changes and appear in all three rows alike.
 
-Usage:  python local_modp.py [--kmin 5] [--kmax 10] [--seed 0] [--prime 2147483647]
+Special cases of the equilibrium, for contrast: --case vacuum (no pressure, no current),
+force-free (no pressure), F-constant (pressure, but toroidal field function constant).
+
+Usage:  python local_modp.py [--kmin 5] [--kmax 10] [--seed 0] [--prime 2147483647] [--case general]
 """
 import argparse
 import time
@@ -89,12 +92,16 @@ class Mod(Variant):
         return s
 
 
-def solovev(J, rng, sign_F, sign_p):
+def solovev(J, rng, sign_F, sign_p, case="general"):
     """Taylor series mod P of the Solov'ev equilibrium about a random point."""
     P = J.P
     m = J.mul
     r = lambda: int(rng.integers(2, P - 1))
     x0, A, C0, h1, h2, h3, h4, f0 = [r() for _ in range(3)], r(), r(), r(), r(), r(), r(), r()
+    if case in ("vacuum", "force-free"):   # no pressure gradient
+        A = 0
+    if case in ("vacuum", "F-constant"):   # toroidal field function F constant
+        C0 = 0
     X = []
     for i in range(3):
         a = J.const(x0[i])
@@ -184,6 +191,7 @@ if __name__ == "__main__":
     ap.add_argument("--kmax", type=int, default=10)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--prime", type=int, default=2147483647)
+    ap.add_argument("--case", default="general", choices=["general", "vacuum", "force-free", "F-constant"])
     a = ap.parse_args()
     P = a.prime
     # fix the two sign conventions by which one makes the residual vanish
@@ -191,15 +199,15 @@ if __name__ == "__main__":
     for sF in (1, -1):
         for sp in (1, -1):
             J = Mod(4, "killing", P)
-            if not np.any(J.res(solovev(J, np.random.default_rng(a.seed), sF, sp))):
+            if not np.any(J.res(solovev(J, np.random.default_rng(a.seed), sF, sp, "general"))):
                 signs = (sF, sp)
-    print(f"prime {P}, seed {a.seed}; sign conventions {signs} (residual vanishes mod p)", flush=True)
+    print(f"case {a.case}, prime {P}, seed {a.seed}; sign conventions {signs} (residual vanishes mod p)", flush=True)
     for K in range(a.kmin, a.kmax + 1):
         t0 = time.time()
         rows = {}
         for name, mode in (("sym", "killing"), ("strong", "strong"), ("weak", "qs")):
             J = Mod(K, mode, P)
-            x = solovev(J, np.random.default_rng(a.seed), *signs)
+            x = solovev(J, np.random.default_rng(a.seed), *signs, a.case)
             assert not np.any(J.res(x)), f"{mode}: the equilibrium is not a solution mod p"
             rows[name] = counts(J, x, min(K - 1, 8))
         print(f"K={K}   [{time.time() - t0:.0f}s]", flush=True)
