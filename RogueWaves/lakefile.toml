@@ -1,7 +1,7 @@
 name = "RogueWaves"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["RogueWaves"]
+defaultTargets = ["RogueWaves", "Stellarator"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -16,3 +16,6 @@ rev = "v4.37.0-rc1"
 
 [[lean_lib]]
 name = "RogueWaves"
+
+[[lean_lib]]
+name = "Stellarator"
