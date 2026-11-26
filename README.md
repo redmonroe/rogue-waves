@@ -25,6 +25,8 @@ From `stellarator/`, with `PY=../.venv/bin/python`:
     $PY seeds.py 2                          # exact seed search, polynomial degree 2
     $PY local_jets_project.py 12 qs 0       # local Taylor-series test, stable count, orders 3 to 12
     $PY local_extend.py 13                  # carry the saved order-13 solution to order 14, with a log
+    $PY local_planar_check.py               # run the local test on the exact non-symmetric solution
+    $PY local_jets_project.py 11 strong 0   # local test with the strong form of quasisymmetry
     $PY planar_family.py                    # exact non-symmetric quasisymmetric families: check all equations
     $PY gen_twisted_pinch.py                # regenerate the Lean certificate for the twisted pinch
     $PY scan_iota2.py                       # scan the whole two-parameter iota=2 family (seconds)

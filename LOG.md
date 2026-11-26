@@ -19,11 +19,13 @@ symmetry error vanishes identically.
 
 In order. Move an item to the log when it is done.
 
-1. **Check the literature on the planar family** (log entry "Exact quasisymmetric equilibria
-   with no rigid symmetry"). Read Sato, Sci. Rep. 2022 (weakly quasisymmetric fields in
-   asymmetric tori, no rotational transform, anisotropic pressure) and the infinite-cylinder
-   constructions cited by Constantin, Drivas and Ginsberg (arXiv:2009.08860). Is our family
-   already written down?
+1. **Local test in the strong form.** This is the local version of an open question stated by
+   Burby, Kallinikos and MacKay: is every (strong) quasisymmetry of an equilibrium a rigid
+   motion? The strong system has far less freedom, so the answer may show at order 8 to 10
+   instead of 14. If the equations at some finite order force the stretching part of grad u to
+   vanish, that is a finite algebraic statement and a candidate for an exact proof and a Lean
+   certificate. Steps: finish the numerical run (`local_jets_project.py 11 strong 0`), second
+   seed, then exact arithmetic at the order where it closes.
 2. **Recipe type 2, continued: look for a version with rotational transform.** The planar
    family works because the symmetry flow is a rigid motion on each plane and B lies in the
    planes. Try: symmetry fields of the form u = K0 + f K1 + ... (K rigid motions, f functions),
@@ -46,8 +48,8 @@ In order. Move an item to the log when it is done.
 
 ## Open questions
 
-- Is the planar family new? Not known. One search found related but different results (Sato
-  2022: toroidal, anisotropic pressure; ours: ordinary pressure, not toroidal).
+- Is the weak-quasisymmetry property of the planar equilibria stated anywhere? Not found; the
+  1995 and 1997 papers could not be read.
 - Can the planar construction be given rotational transform, or bent into a torus?
 - The local test's carried solution sits on a branch with finitely many parameters (33 at order
   13). Is that branch real, or does it die at higher order?
@@ -236,8 +238,61 @@ or the rotational transform.
 Two toroidal variants already ruled out by hand: (a) poloidal field shifted vertically by
 m(toroidal angle) needs the vertical field component constant along closed field lines,
 impossible; (b) turning the pattern within each poloidal plane is not volume-preserving.
-Trust: the equations are exact (SymPy and Lean). Novelty unknown; not checked against the
-literature beyond one search.
+Trust: the equations are exact (SymPy and Lean).
+
+**Literature check on the planar family.**
+Read in full text on arXiv unless noted.
+- The twist family, as an equilibrium, is known: it is the constant-ellipticity case of Salat and
+  Kaiser, Phys. Plasmas 2, 3777 (1995) ("field lines lie in planes orthogonal to the axis ...
+  elliptical cross sections, whose ellipticity and orientation are arbitrary functions along
+  the axis"; abstract only, paper not readable from here). It also appears in Gomez-Serrano,
+  Liehr and Taylor, arXiv:2609.24739, section 2.3.
+- The shift family was not found, but it is of the same known plane-stacked type (Kaiser and
+  Salat 1997; Low 1982).
+- That these equilibria are weakly quasisymmetric with a non-rigid u was not found stated
+  anywhere. Related: Jacobson, arXiv:2408.05919, has non-rigid weak quasisymmetries of a
+  symmetric field; Sato, arXiv:2204.09241, has non-symmetric weakly quasisymmetric tori that are
+  not equilibria with ordinary pressure.
+- Important limit: the family is quasisymmetric only in the weak sense. The strong form adds
+  (curl B) x u + grad(u . B) = 0, and here that is proportional to m'' or theta'', not zero.
+  Burby, Kallinikos and MacKay (arXiv:2010.08968, Thm 10.1) show weak implies strong for an
+  equilibrium with irrational surfaces, so on a real torus the strong form is the one that
+  counts. Their open question (arXiv:1912.06468, section 12): "Is every quasi-symmetry a
+  Killing field? ... Or at least if one requires magnetohydrostatics? ... It is not even clear
+  whether these questions are global or local in nature." That is about the strong form; the
+  planar family does not answer it.
+- Not read: Salat-Kaiser 1995, Kaiser-Salat 1997, Lortz 1970, Low 1982 (publisher sites
+  blocked). Confidence in "not stated before": moderate.
+
+**Local test validated on the exact solution, and what the falling counts mean.**
+`local_planar_check.py` puts the Taylor series of the twisted pinch into the local test.
+- Every residual of `local_jets.py` is 2.5e-15 at orders 3 to 13. First check of that code
+  against a non-symmetric exact solution.
+- Free-parameter counts around the exact solution (well-scaled base point):
+
+  | K | k=3 | k=4 | k=5 | k=6 | k=7 | min log10 gap |
+  |---|---|---|---|---|---|---|
+  | 10 | 33 | 49 | 57 | 62 | 71 | 7.1 |
+  | 11 | 33 | 49 | 52 | 56 | 60 | 4.9 |
+  | 12 | 33 | 42 | 43 | 45 | 48 | 4.2 |
+  | 13 | 27 | 27 | 28 | 29 | 30 | 3.4 |
+
+- Through order 10 these are the same numbers as around the solution carried in the main test.
+  They collapse at orders 12 and 13 here too, although this solution exists to all orders.
+- So a collapse in the counts does not mean the solution is dying. It means its neighbours are.
+  At order 13 the count grows by one per degree, which is what a family with one free function
+  (theta) looks like; around the carried solution it is flat at 33 (no free function).
+- Correction to the order 12-13 entry above: its "Reading" took the collapse as a sign that
+  non-symmetric solutions were a truncation effect. The evidence for that is only the failed
+  order-14 step, not the counts.
+Evidence: `stellarator/local_planar_check_output.txt`.
+
+**Local test, strong form (started).**
+Mode `strong` adds (curl B) x u + grad(u . B) = 0 (imposed one degree lower than the rest;
+checked: zero on a symmetric solution, 0.012 on the planar family). First counts, one seed:
+7, 16, 24, 29, 33, 39 at order 7, against 7, 18, 33, 49, 63, 80 for the weak form and
+7, 12, 16, 20, 24, 28 for symmetric fields. The order-6 to order-7 step already needed 60
+Newton steps and the count at order 7 has no clean gap. Running further.
 
 **Recipe type 2 in coordinates (derived by hand, not machine-checked).**
 A field with div B = 0, div u = 0, B x u = grad psi and |B| constant along u is the same thing

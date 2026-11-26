@@ -10,6 +10,8 @@ Three systems are compared, with the same normalisation:
   mhs      : equilibrium only (div B = 0, (curl B) x B = grad p)
   qs       : equilibrium + weak quasisymmetry (the system in local_jets.py)
   killing  : qs, plus u required to be a Killing field (rigid motion) to every order
+  strong   : qs, plus (curl B) x u + grad(u . B) = 0 (strong quasisymmetry). On a torus with
+             irrational surfaces and force balance this follows from qs; near a point it does not.
   iso      : qs, plus |B| constant on each flux surface (isodynamic). Such fields are
              quasisymmetric near a point for a trivial reason: any u in the surface will do.
 If `qs` and `killing` agree for large K, quasisymmetry is forcing a symmetry locally.
@@ -39,6 +41,14 @@ class Variant(Jets):
             d = self.d
             extra = [(d(u[j], i) + d(u[i], j))[self.eq_mask] for i in range(3) for j in range(i, 3)]
             return np.concatenate([r] + extra)
+        if self.mode == "strong":  # strong quasisymmetry: also (curl B) x u + grad(u . B) = 0
+            d, m = self.d, self.mul
+            c = self.cross(self.curl(B), u)
+            uB = sum(m(u[i], B[i]) for i in range(3))
+            # one degree lower than the other equations: B x u = grad psi is imposed to degree
+            # K-1, so its consequence [u, B] = 0 holds only to degree K-2, and so does this
+            sm = self.deg <= self.K - 2
+            return np.concatenate([r] + [(c[i] + d(uB, i))[sm] for i in range(3)])
         if self.mode == "iso":  # field strength constant on flux surfaces: grad|B|^2 x grad psi = 0
             d, m = self.d, self.mul
             B2 = sum(m(B[i], B[i]) for i in range(3))

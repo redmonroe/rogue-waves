@@ -16,7 +16,7 @@ Every rank decision is on a matrix of moderate size with entries of order one, a
 gap between kept and dropped singular values is reported (`min log10 gap`). A gap below about 3
 means the counts at that order should not be trusted.
 
-Usage:  python local_jets_project.py [Kmax] [modes] [seed]     modes: qs,killing,iso (default qs)
+Usage:  python local_jets_project.py [Kmax] [modes] [seed]     modes: qs,strong,killing,iso (default qs)
 """
 import sys
 import time
@@ -36,6 +36,8 @@ def levels(J):
         row_top = np.concatenate([eq_deg] * 9 + [np.ones(6, dtype=int)])
     elif J.mode == "killing":
         row_top = np.concatenate([eq_deg] * 9 + [np.ones(6, dtype=int)] + [eq_deg] * 6)
+    elif J.mode == "strong":
+        row_top = np.concatenate([eq_deg] * 9 + [np.ones(6, dtype=int)] + [J.deg[J.deg <= J.K - 2] + 1] * 3)
     elif J.mode == "iso":
         row_top = np.concatenate([eq_deg] * 9 + [np.ones(6, dtype=int)] + [eq_deg] * 3)
     else:
