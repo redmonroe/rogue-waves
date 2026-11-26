@@ -19,20 +19,25 @@ symmetry error vanishes identically.
 
 In order. Move an item to the log when it is done.
 
-1. **Strong form: from evidence to proof.** State of play: seven numerical solutions all end
-   symmetric by order 9 (checked to 40 digits where polished), and exact arithmetic shows
-   nothing branches off a Solov'ev equilibrium to first order. Next, in order:
-   (a) in progress: sixteen-seed batch on the Mac (`runs/hp_strong_mac.txt`). The six solves
-   from random starts directly at order 9 found nothing (log); a from-scratch test needs a
-   better solver or a start nearer a solution;
-   (b) done for three types (rotation, translation, screw); still open: a screw-symmetric
-   equilibrium whose field lines are not planar (needs series solutions of the helical
-   Grad-Shafranov equation);
-   (c) the same first-order question over the rationals with certificates (a non-zero minor mod
-   p proves a rank lower bound; explicit kernel vectors prove the upper bound), then Lean for
-   the statement at one equilibrium;
-   (d) literature: is the local first-order statement known? Read Plunk and Helander 2018 and
-   Plunk 2020 (finite pressure) in full.
+1. **Strong form with force balance: from evidence to proof.** State of play: every numerical
+   solution carried to order 9 is symmetric (40 digits where polished); exact arithmetic shows
+   nothing branches off three types of symmetric equilibrium to first order; the literature
+   says the question is open (log, "Literature: what is known"). Next, in order:
+   (a) in progress: sixteen-seed batch on the Mac (`runs/hp_strong_mac.txt`);
+   (b) use the structure result of Burby et al. 2024 (B lies along the null direction of the
+   strain of u; trace and determinant of the strain vanish) together with
+   curl B = -C'(psi) B - p'(psi) u to look for a proof by hand or by computer algebra that the
+   strain must vanish when |B| varies along B. (Adding these to the local test gains nothing:
+   S . B = 0 is already a combination of the equations imposed there, at the same degree.)
+   Six equations for the three components of u, so a proof by elimination is plausible but
+   the experts have not found one since 2020;
+   (c) first-order question over the rationals with certificates, then Lean, at one
+   equilibrium; and the exact first-order test at a screw-symmetric equilibrium with non-planar
+   field lines;
+   (d) state the conjecture correctly. "u is a rigid motion" is false as stated: B = g(x, y) e_z
+   is an equilibrium, and u = e_z x grad g is a strong quasisymmetry that is not rigid. That
+   field has |B| constant along B and is symmetric in z. The local test excludes it by its
+   normalisation (|B| varies along B at the origin).
 2. **Recipe type 2, continued: look for a version with rotational transform.** The planar
    family works because the symmetry flow is a rigid motion on each plane and B lies in the
    planes. Try: symmetry fields of the form u = K0 + f K1 + ... (K rigid motions, f functions),
@@ -51,7 +56,9 @@ In order. Move an item to the log when it is done.
    with its formulas appears.
 6. **Calibration run.** Give Landreman's original prompt to a fresh session, closed book, and see
    whether it rediscovers his field. Started once, lost in a machine restart.
-7. **Outside reader** for the Lean statement file and for the planar family.
+7. **Outside reader** for the Lean statement file, the planar family and the radial twisted
+   field. The last one is the easiest to check and bears on a question stated as open in a 2025
+   paper; a one-page note to its authors is the natural route.
 
 ## Open questions
 
@@ -64,6 +71,11 @@ In order. Move an item to the log when it is done.
   literature? Klotz, Duignan, Burby and Meiss (arXiv:2609.09517) treat the case without force
   balance.
 - Which family was the Mac run labelled "sengupta"? Its output was pasted but not pushed.
+- Are the radial twisted field and its relatives known? They are elementary. Four searches
+  found no explicit strongly quasisymmetric field without a rigid symmetry, and the 2025 paper
+  says existence is open, but the authors may mean toroidal fields only.
+- Is there a strongly quasisymmetric field without force balance and without rigid symmetry
+  whose field lines are not planar? Both families found here have planar field lines.
 
 ## Log
 
@@ -443,6 +455,71 @@ Six random starts (seeds 300 to 305), 300 Newton steps each, no ladder from orde
   from two of three starts.
 - The gap stays open: every order-9 solution we have was carried up from order 4.
 Evidence: `stellarator/runs/hp_strong_scratch9.txt`.
+
+**Literature: what is known about "does quasisymmetry force a rigid symmetry".**
+Read in full or in the relevant parts: Plunk and Helander 2018 (arXiv:1801.02990), Plunk 2020
+(arXiv:2005.02981), Burby, Kallinikos and MacKay 2020 (arXiv:1912.06468), Burby, Kallinikos,
+MacKay, Perrella and Pfefferle 2024 (arXiv:2403.03352, J. Plasma Phys. 2025), Sato, Qu,
+Pfefferle and Dewar 2021 (arXiv:2108.01818), Klotz et al. 2026 (arXiv:2609.09517, abstract and
+citations only).
+- Vacuum, near axisymmetry, first order: done by Plunk and Helander (Appendix F). Their argument
+  is pointwise in the poloidal plane, one toroidal mode number at a time, so the vacuum case of
+  our exact first-order result is in effect already there.
+- Finite pressure, near axisymmetry: Plunk 2020 imposes the condition on one surface and says
+  "we will not consider here the question of whether this condition might, under special
+  circumstances, be satisfied globally". So our first-order result with pressure and current is
+  not in that paper. Not found elsewhere either.
+- Strong form, general: Burby, Kallinikos and MacKay 2020, section 7: "We have not managed to
+  prove or disprove that a quasi-symmetry is a Killing field". Section 12 asks it again, "at
+  least if one requires magnetohydrostatics", and whether it is local or global.
+- Strong form without force balance: Burby et al. 2024 prove that if u is not a rigid motion,
+  the strain S of u has zero trace and zero determinant, B points along the null direction of
+  S, and that direction is carried by the flow of u. They say the existence of such u "needs to
+  be addressed" and announce a follow-up. Klotz et al. (September 2026) still cite it as a
+  proposal.
+- Weak form without force balance: non-symmetric local solutions are known (Sato et al. 2021,
+  Sato 2022; Klotz et al. 2026).
+- Limits of this check: four web searches and six papers. One 2025 paper could not be opened
+  (osti.gov is not reachable from here); from its abstract (arXiv:2507.06480) it is about |B| on
+  one surface. Not exhaustive.
+
+**New exact fields: strongly quasisymmetric, no force balance, no rigid symmetry
+(`radial_twist.py`).**
+Found while reading Burby et al. 2024: the symmetry field of our twisted pinch satisfies their
+three conditions, so their theorem says which B goes with it.
+- Field: B = G(phi - theta(y)) r_hat / r, pointing straight out from the y axis; phi is the
+  angle about that axis; theta and G are any functions. Symmetry field: u = d/dy + theta'(y)
+  d/dphi (move along the axis while turning about it).
+- SymPy, for arbitrary theta and G: div u = 0, div B = 0, curl(u x B) = 0,
+  (curl B) x u + grad(u . B) = 0, u . grad|B|^2 = 0, all identically zero. The strain of u has
+  S:S = r^2 theta''^2 / 2, so u is not a rigid motion where theta'' is not zero.
+- B itself has no rigid symmetry when theta'' and G' are not zero. By hand: a rigid motion
+  preserving the direction of B preserves the y axis, so it is a d/dy + b d/dphi, which changes
+  B by G' (b - a theta') / r. Numerically at 40 digits: measure 0.016 for tan(theta/2) = y,
+  G = cos^2; 1e-41 for the two controls (theta linear; G constant).
+- Lean, for tan(theta/2) = y and G = cos^2 (a rational field): `Stellarator/Generated/RadialTwist.lean` proves div B = 0, div u = 0, curl(u x B) = 0 (3 components), u . B = 0, (curl B) x u + grad(u . B) = 0 (3 components), u . grad|B|^2 = 0, and d(u_x)/dy = -4yz/(1+y^2)^2. Hypothesis: x^2 + z^2 is not zero. Standard axioms only; `lake build` passes. Non-symmetry of B is not proved in Lean. Not linked to `Defs.lean`.
+- Second family by the same recipe (u = K0 + f K1, with K0 and K1 commuting rigid motions and f
+  constant along K1): u = d/dx + a(y) exp(kappa x) d/dz, B = Phi(a(y) exp(kappa x) - kappa z)
+  (-a'/a, kappa, 0), any functions a and Phi. SymPy: all equations zero; measure 0.034 for
+  a = y, 1e-41 for the control a = exp(y).
+- What they are not: equilibria (the current is parallel to u and J x B is not a gradient
+  unless G G' = 0); toroidal (field lines are straight rays, or planar curves in the second
+  family); an answer to the main problem.
+- What they show: in flat space, strong quasisymmetry by itself does not force a rigid
+  symmetry of B, even locally. With the planar family (weak form, with force balance) the
+  picture is now:
+
+  | | weak quasisymmetry | strong quasisymmetry |
+  |---|---|---|
+  | no force balance | non-symmetric fields known (Sato; Klotz et al.) | non-symmetric fields exist (this entry) |
+  | force balance | non-symmetric fields exist (planar family, ours) | none found; evidence that none exist with \|B\| varying along B |
+
+  So the rigidity seen in the strong-form runs needs both ingredients, force balance and the
+  strong condition. Each alone leaves room.
+- Trust: the equations are exact (SymPy for the general case, Lean for one case). Novelty: not
+  known. The examples are elementary and specialists may know them or regard them as trivial;
+  see the open questions.
+Evidence: `stellarator/radial_twist_output.txt`, `RogueWaves/Stellarator/Generated/RadialTwist.lean`.
 
 **The strong system, reduced by hand (not machine-checked).**
 With force balance, strong quasisymmetry, and u . grad p = 0: curl B = -C'(psi) B - p'(psi) u

@@ -31,6 +31,8 @@ From `stellarator/`, with `PY=../.venv/bin/python`:
     $PY local_strong_ladder.py 4 9 1        # strong form: carry the saved seed-1 solution up, with counts
     $PY planar_family.py                    # exact non-symmetric quasisymmetric families: check all equations
     $PY gen_twisted_pinch.py                # regenerate the Lean certificate for the twisted pinch
+    $PY radial_twist.py                     # strong quasisymmetry without force balance: exact non-symmetric fields
+    $PY gen_radial_twist.py                 # regenerate the Lean certificate for the radial twisted field
     $PY scan_iota2.py                       # scan the whole two-parameter iota=2 family (seconds)
     $PY qs_residuals.py 40                  # residual table for the explicit families (minutes)
     $PY qs_other_families.py                # same for the vacuum and N-field-period families
