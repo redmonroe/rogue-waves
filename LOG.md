@@ -19,31 +19,41 @@ symmetry error vanishes identically.
 
 In order. Move an item to the log when it is done.
 
-1. **Local test to higher order.** Finish order 14 in the cloud session and order 16 on the Mac
-   (`local_jets_project.py`). Read two things: whether the counts stop falling, and whether
-   `min log10 gap` stays above about 3.
-2. **If the gap closes before the counts settle:** redo the elimination in extended precision.
-   Not built yet.
-3. **Work out which hidden conditions are appearing.** The count at degree 5 loses 2 or 3 per
-   order. Identifying the condition by hand would say whether the fall must continue.
-4. **Recipe type 2: symmetry by construction.** Build fields in which every field line on a
-   surface is the same curve moved rigidly, so the field-strength pattern is shared by
-   construction, then search for force balance. Not started.
+1. **Check the literature on the planar family** (log entry "Exact quasisymmetric equilibria
+   with no rigid symmetry"). Read Sato, Sci. Rep. 2022 (weakly quasisymmetric fields in
+   asymmetric tori, no rotational transform, anisotropic pressure) and the infinite-cylinder
+   constructions cited by Constantin, Drivas and Ginsberg (arXiv:2009.08860). Is our family
+   already written down?
+2. **Recipe type 2, continued: look for a version with rotational transform.** The planar
+   family works because the symmetry flow is a rigid motion on each plane and B lies in the
+   planes. Try: symmetry fields of the form u = K0 + f K1 + ... (K rigid motions, f functions),
+   with B not confined to the leaves. Condition to satisfy: B . (grad u + grad u^T) . B = 0.
+   Two toroidal variants are already ruled out (see the log entry).
+3. **Lean.** Prove the twisted pinch has no rigid-motion symmetry (finite linear algebra at a
+   few rational points). Link both certificates to the operators in `Stellarator/Defs.lean` and
+   state "IsMHSOn and IsWeakQSOn and not symmetric" in one theorem. This also tests the
+   definitions on a real example.
+4. **Local test, order 14 and beyond.** Finish the order-14 step (`local_extend.py 13`), then
+   the count (`local_jets_project.py 14 qs 0`). Lower priority now: the planar family shows the
+   local question has a non-symmetric answer, so this test cannot prove non-existence. What it
+   can still say: whether the branch it is following (field lines not planar) dies out.
 5. **Remaining published families.** Sengupta et al. vacuum family (arXiv:2610.28466) not yet
    read. Their force-free family (arXiv:2611.31603) cannot be tested until the companion paper
    with its formulas appears.
-6. **Lean.** Link the generated certificate to the operators in `Stellarator/Defs.lean`; prove
-   the axisymmetric member satisfies the quasisymmetry definitions and check the stretched member
-   fails. This is the two-sided test of the definitions, which are otherwise unreviewed.
-7. **Calibration run.** Give Landreman's original prompt to a fresh session, closed book, and see
+6. **Calibration run.** Give Landreman's original prompt to a fresh session, closed book, and see
    whether it rediscovers his field. Started once, lost in a machine restart.
-8. **Outside reader** for the Lean statement file.
+7. **Outside reader** for the Lean statement file and for the planar family.
 
 ## Open questions
 
-- Is the local question (force balance + quasisymmetry near a point, no torus) already settled
-  in the literature? One arXiv search returned nothing usable. Klotz, Duignan, Burby and Meiss
-  (arXiv:2609.09517) treat the case without force balance.
+- Is the planar family new? Not known. One search found related but different results (Sato
+  2022: toroidal, anisotropic pressure; ours: ordinary pressure, not toroidal).
+- Can the planar construction be given rotational transform, or bent into a torus?
+- The local test's carried solution sits on a branch with finitely many parameters (33 at order
+  13). Is that branch real, or does it die at higher order?
+- Is the local question (force balance + quasisymmetry near a point, no torus) treated in the
+  literature? Klotz, Duignan, Burby and Meiss (arXiv:2609.09517) treat the case without force
+  balance.
 - Which family was the Mac run labelled "sengupta"? Its output was pasted but not pushed.
 
 ## Log
@@ -159,10 +169,77 @@ Stable method, same solution carried upward:
   known; the trend points toward the equations forcing symmetry near a point.
 - Caveats: one carried solution (seed 0) at orders 12 and 13; the gap at order 13 (3.7) is close
   to the limit of what double precision can resolve; no proof.
-In progress: orders 14 and 15 in the cloud session, with checkpoints in `stellarator/runs/` so
-any machine can resume after a `git pull`. Order 16 on the Mac.
+- Correction: "the trend points toward the equations forcing symmetry near a point" is wrong as
+  a general statement. See "Exact quasisymmetric equilibria with no rigid symmetry" below: a
+  closed-form non-symmetric family exists. The collapse seen here is on a different branch.
+Checkpoints for orders 3 to 13 are in `stellarator/runs/`, so any machine can resume.
+
+**Local test, order 14: first attempt ran out of time.**
+The two-hour run spent 100 minutes trying to carry the order-13 solution to order 14 and printed
+nothing. Rewritten as `local_extend.py`: one log line per Newton step, iterate saved each step,
+Jacobian on all cores (45 s per step when the machine is otherwise idle).
+- The step is converging, slowly: residual 1.2 to 2e-3 in 19 steps, with shortened steps.
+- Along the way the solution's symmetry measure keeps falling: 0.071 (order 13) to 0.016.
+- Not finished at the time of writing. Partial iterate: `runs/local_qs_seed0_K14_partial.npy`
+  (not tracked).
+- Two other solvers were tried for this step and were worse: Levenberg-Marquardt damping, and
+  picking the greediest of several truncated steps. Both crawl along a narrow valley.
+
+**Local test: two side checks, both inconclusive.**
+- Fields whose strength is constant on each surface (isodynamic) are quasisymmetric near a point
+  for a trivial reason. The test's normalisation (field strength varies along the field line at
+  the origin) excludes them, so they were never in the counts. Added as mode `iso`: counts 5, 12,
+  18, 28 at order 5, falling with order; the solver stalls at order 6.
+- `local_rigidity.py`: count first-order quasisymmetric changes of a symmetric solution. If the
+  count equalled the symmetric count, nothing non-symmetric could branch off. Result: larger
+  through order 6 (48 against 20 at degree 4); beyond that the rank decisions fail (gap near 1).
+
+**Exact quasisymmetric equilibria with no rigid symmetry (recipe type 2, first result).**
+Found by hand while setting up "symmetry by construction", then checked by machine.
+Construction: take a 2D field in the (x, z) plane whose field-line force is the gradient of a
+function unchanged by shifts in x (or by rotations about the origin). In the plane at height y,
+use that field shifted by m(y) (or turned by theta(y)), for any function m or theta. Then:
+- force balance holds, with pressure a function of the flux label;
+- u = "go up in y and apply the motion" is divergence-free, B x u = grad psi, and |B| is
+  constant along u: weak quasisymmetry, exactly;
+- if m (or theta) is not linear in y, u is not a rigid motion and B has no translation,
+  rotation or screw symmetry.
+
+| Family | Field | Surfaces |
+|---|---|---|
+| shift | B = exp(kappa z/2) (cosh(mu X), 0, -(2 mu/kappa) sinh(mu X)), X = x - m(y) | open sheets |
+| twist | B = R(y) M R(y)^T (x, z), M = [[0, -2 beta], [2 alpha, 0]], R(y) = rotation by theta(y) | nested elliptical tubes around the y axis, turning at any rate |
+
+Checks:
+- All five equations vanish identically in SymPy for both families (`planar_family.py`).
+- Rigid-symmetry measure at 40 digits: 1e-41 for the controls (m or theta linear, or circular
+  cross-section), 0.007 to 0.22 for the others (`planar_family_output.txt`).
+- Lean: for the twist family with tan(theta/2) = y the field is rational, and
+  `Stellarator/Generated/TwistedPinch.lean` proves div B = 0, force balance (3 components),
+  div u = 0, B x u = grad psi (3 components) and u . grad |B|^2 = 0. Standard axioms only.
+  Non-symmetry is not proved in Lean yet. Statements use one-variable partial derivatives and
+  are not yet linked to `Defs.lean`.
+
+What it is not: an answer to the open problem. Every field line lies in a plane y = const (no
+rotational transform), and the surfaces are sheets or infinite tubes, not tori in ordinary
+space. The twist family is a pinch with no field along its axis; making y periodic gives tori
+only in a periodic box.
+What it changes here: force balance plus quasisymmetry do not force a rigid symmetry near a
+point, so no purely local argument can prove non-existence; a proof would have to use the torus
+or the rotational transform.
+Two toroidal variants already ruled out by hand: (a) poloidal field shifted vertically by
+m(toroidal angle) needs the vertical field component constant along closed field lines,
+impossible; (b) turning the pattern within each poloidal plane is not volume-preserving.
+Trust: the equations are exact (SymPy and Lean). Novelty unknown; not checked against the
+literature beyond one search.
+
+**Recipe type 2 in coordinates (derived by hand, not machine-checked).**
+A field with div B = 0, div u = 0, B x u = grad psi and |B| constant along u is the same thing
+as a map x(psi, a, b) with unit Jacobian and |x_b|^2 independent of a; then B = x_b, u = x_a.
+Force balance adds: x_a . x_b independent of b, and d/db (x_psi . x_b) - d/dpsi |x_b|^2 a
+function of psi only. Three unknown functions, four conditions.
 
 **Not completed today.**
 - Calibration run (lost in a restart).
 - Sengupta vacuum family.
-- Recipe type 2.
+- Local test at order 14 (step still running).

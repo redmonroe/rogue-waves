@@ -24,6 +24,9 @@ From `stellarator/`, with `PY=../.venv/bin/python`:
     $PY test_leangen.py                     # the generator must reject a false identity
     $PY seeds.py 2                          # exact seed search, polynomial degree 2
     $PY local_jets_project.py 12 qs 0       # local Taylor-series test, stable count, orders 3 to 12
+    $PY local_extend.py 13                  # carry the saved order-13 solution to order 14, with a log
+    $PY planar_family.py                    # exact non-symmetric quasisymmetric families: check all equations
+    $PY gen_twisted_pinch.py                # regenerate the Lean certificate for the twisted pinch
     $PY scan_iota2.py                       # scan the whole two-parameter iota=2 family (seconds)
     $PY qs_residuals.py 40                  # residual table for the explicit families (minutes)
     $PY qs_other_families.py                # same for the vacuum and N-field-period families
