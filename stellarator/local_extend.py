@@ -9,7 +9,7 @@ backtracking, as in local_jets.py; if no length works, the smallest singular val
 (Levenberg-Marquardt damping, and picking the greediest of several truncated steps, were both
 tried and both crawled along a narrow valley where the plain step converges in about 6.)
 
-Usage:  python local_extend.py K [seed] [max_steps] [mode]   extends runs/local_{mode}_seed{seed}_K{K}.npy
+Usage:  python local_extend.py K [seed] [max_steps] [mode] [rescale]   extends runs/local_{mode}_seed{seed}_K{K}.npy
 """
 import os
 import sys
@@ -48,7 +48,12 @@ def jacobian(J, x, workers):
     return np.vstack(parts).T
 
 
-def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir="runs", mode="qs"):
+def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir="runs", mode="qs",
+           rescale=False):
+    """rescale=True measures lengths in a unit in which the lower-order solution's coefficients
+    are of order one (degree-d coefficients are multiplied by rho^d, degree-e equations by
+    rho^e). The solution set is unchanged; what changes is which directions the double-precision
+    least-squares step can see. Needed when coefficients reach 1e3 and more."""
     path = lambda k, tag="": os.path.join(ckpt_dir, f"local_{mode}_seed{seed}_K{k}{tag}.npy")
     lower = Variant(K, mode)
     x_lower = np.load(path(K))
@@ -60,12 +65,23 @@ def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir
     else:
         x = J.extend_from(lower, x_lower, rng, noise=0.0)
     J.neq = len(J.residual(x))
-    r = J.residual(x)
+    rho = 1.0
+    if rescale:
+        low_deg = np.concatenate([lower.deg[m] for m in lower.masks])
+        growth = max(np.abs(x_lower[low_deg == d]).max() ** (1.0 / d) for d in range(2, K + 1))
+        rho = 1.0 / max(1.0, growth)
+    from local_jets_project import levels
+    var_deg, row_top = levels(J)
+    cs = rho ** (-var_deg.astype(float))        # dx = cs * dy
+    rs = rho ** (row_top - 1.0)                 # scaled residual = rs * residual
+    res = lambda v: rs * J.residual(v)
+    r = res(x)
     nr = np.linalg.norm(r)
-    out(f"order {K} -> {K + 1}: {J.nvar} unknowns, {J.neq} equations, starting residual {nr:.2e}")
+    out(f"order {K} -> {K + 1}: {J.nvar} unknowns, {J.neq} equations, length unit {rho:.3f}, "
+        f"starting residual {nr:.2e}")
     for it in range(1, max_steps + 1):
         t0 = time.time()
-        Jac = jacobian(J, x, workers)
+        Jac = rs[:, None] * jacobian(J, x, workers) * cs[None, :]
         U, s, Vt = np.linalg.svd(Jac, full_matrices=False)
         Utr = U.T @ r
         # full Gauss-Newton step first, shortened until it gives a real decrease; only if that
@@ -73,11 +89,11 @@ def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir
         found = False
         for cut in (1e-12, 1e-10, 1e-8, 1e-6, 1e-4):
             keep = s > cut * s[0]
-            full = Vt[keep].T @ (Utr[keep] / s[keep])
+            full = cs * (Vt[keep].T @ (Utr[keep] / s[keep]))
             t = 1.0
             while t > 1e-3:
                 xn = x - t * full
-                rn = J.residual(xn)
+                rn = res(xn)
                 nn = np.linalg.norm(rn)
                 if nn < (1 - 0.3 * t) * nr:
                     found = True
@@ -86,7 +102,7 @@ def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir
             if found:
                 break
         if not found:
-            if nr < 1e-11 * max(1.0, np.abs(x).max()):   # stalled at rounding level: converged
+            if nr < 1e-11 * max(1.0, np.abs(x / cs).max()):   # stalled at rounding level: converged
                 np.save(path(K + 1), x)
                 os.remove(path(K + 1, "_partial"))
                 out(f"step {it:3d}  residual {nr:9.3e} at rounding level; saved order {K + 1}")
@@ -101,7 +117,7 @@ def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir
         np.save(path(K + 1, "_partial"), x)
         out(f"step {it:3d}  residual {nr:9.3e}  cutoff {lam[0]:5.0e} length {lam[1]:4.2f}  |dB| {moved:8.2e}  "
             f"sym_B {J.sym_B(x, 2):8.2e}  kill_u {J.kill_u(x):8.2e}  [{time.time() - t0:.0f}s]")
-        if nr < 1e-12 * max(1.0, np.abs(x).max()):   # relative to the coefficient size
+        if nr < 1e-12 * max(1.0, np.abs(x / cs).max()):   # relative to the coefficient size
             np.save(path(K + 1), x)
             os.remove(path(K + 1, "_partial"))
             out(f"converged: saved order {K + 1}")
@@ -115,4 +131,4 @@ if __name__ == "__main__":
     seed = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     steps = int(sys.argv[3]) if len(sys.argv) > 3 else 200
     mode = sys.argv[4] if len(sys.argv) > 4 else "qs"
-    extend(K, seed, steps, out=lambda s: print(s, flush=True), mode=mode)
+    extend(K, seed, steps, out=lambda s: print(s, flush=True), mode=mode, rescale="rescale" in sys.argv)

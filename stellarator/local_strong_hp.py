@@ -20,7 +20,7 @@ Needs only mpmath (already in the project venv). `pip install gmpy2` makes it se
 faster; mpmath picks it up by itself.
 
 Usage:  python local_strong_hp.py [--seeds 100:108] [--kmax 9] [--digits 40] [--steps 150]
-                                  [--scratch K] [--mode strong]
+                                  [--scratch K] [--mode strong] [--rescale] [--out FILE]
 Output: one line per seed and order, also appended to runs/hp_<mode>.txt.
 """
 import argparse
@@ -178,7 +178,7 @@ def ladder(seed, a, log, workers):
             return
         np.save(path(K), to_float(xh))
         steps = []
-        ok = extend(K, seed, a.steps, mode=a.mode, out=steps.append, workers=workers)
+        ok = extend(K, seed, a.steps, mode=a.mode, out=steps.append, workers=workers, rescale=a.rescale)
         K += 1
         if not ok:
             x = np.load(path(K, "_partial"))
@@ -206,7 +206,7 @@ def scratch(seed, a, log, workers):
     if made:
         np.save(lower, np.zeros(Variant(K - 1, a.mode).nvar))
     steps = []
-    ok = extend(K - 1, seed, a.steps, mode=a.mode, out=steps.append, workers=workers)
+    ok = extend(K - 1, seed, a.steps, mode=a.mode, out=steps.append, workers=workers)  # random start: no rescaling
     if made:
         os.remove(lower)
     if not ok:
@@ -228,12 +228,15 @@ if __name__ == "__main__":
     ap.add_argument("--scratch", type=int, default=0)
     ap.add_argument("--mode", default="strong")
     ap.add_argument("--workers", type=int, default=os.cpu_count())
+    ap.add_argument("--rescale", action="store_true",
+                    help="rescale the length unit in each step (for solutions with large coefficients)")
+    ap.add_argument("--out", default="", help="log file (default runs/hp_<mode>.txt)")
     a = ap.parse_args()
     mp.mp.dps = a.digits + 15
     lo, hi = (int(v) for v in a.seeds.split(":"))
     os.makedirs("runs", exist_ok=True)
-    with open(f"runs/hp_{a.mode}.txt", "a") as log:
+    with open(a.out or f"runs/hp_{a.mode}.txt", "a") as log:
         log.write(f"# {time.strftime('%Y-%m-%d %H:%M')}  seeds {a.seeds}  kmax {a.kmax}  digits {a.digits}"
-                  f"  scratch {a.scratch}  backend {mp.libmp.BACKEND}\n")
+                  f"  scratch {a.scratch}  rescale {a.rescale}  backend {mp.libmp.BACKEND}\n")
         for seed in range(lo, hi):
             (scratch if a.scratch else ladder)(seed, a, log, a.workers)
