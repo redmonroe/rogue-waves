@@ -41,6 +41,32 @@ about zero (the formulas are transcribed correctly); `triple` is zero only if th
 quasisymmetric with its flux label; `frob` must be zero if the field is weakly quasisymmetric
 with any flux label. The axisymmetric member of each family is a control and gives zeros.
 
+### Local test: do the equations force a symmetry near a point?
+
+`stellarator/local_jets.py` and `local_jets_count.py` write B, u, psi, p as Taylor series at a
+point, impose force balance and weak quasisymmetry on every coefficient up to a chosen order K,
+and ask whether the solutions are forced to have a Euclidean symmetry. Results so far
+(`local_jets_count_output.txt`), all numerical, on truncated series, in double precision:
+
+- Non-symmetric solutions exist at every order from 2 to 10. On solutions required to be
+  symmetric the symmetry measure reads 1e-15; on the others it is 0.2 to 1.
+- Number of free parameters in the Taylor polynomial of B of degree <= k, identical for two
+  independent solutions:
+
+  | | k=1 | k=2 | k=3 | k=4 | k=5 |
+  |---|---|---|---|---|---|
+  | force balance only | 7 | 19 | 35 | 55 | |
+  | force balance + quasisymmetry | 7 | 18 | 33 | 49 | 68, 65, 63, 61, 59, 57 at K = 5 .. 10 |
+  | same, with u a rigid motion | 7 | 12 | 16 | 20 | 24 |
+
+- New compatibility conditions are still arriving at order 10: the k=5 count has dropped at every
+  order and has not settled. So this does **not** yet show whether a non-symmetric family
+  survives or whether the conditions eventually leave only symmetric solutions.
+- Beyond K = 10 the counts cannot be trusted in double precision: the singular values that
+  separate free from fixed directions shrink about tenfold per order (the `log10 gaps` column).
+  An earlier run to K = 13 appeared to show a collapse; that was this artifact.
+- Next: redo the linear algebra in extended precision to reach K = 14 or more.
+
 ### Running the tools
 
 From `stellarator/`, with `PY=../.venv/bin/python`:
@@ -48,6 +74,7 @@ From `stellarator/`, with `PY=../.venv/bin/python`:
     $PY test_search.py                      # sanity check of the search objective (seconds)
     $PY test_leangen.py                     # the generator must reject a false identity
     $PY seeds.py 2                          # exact seed search, polynomial degree 2
+    $PY local_jets_count.py 10 qs 7         # local Taylor-series test, orders 3 to 10 (about a minute)
     $PY scan_iota2.py                       # scan the whole two-parameter iota=2 family (seconds)
     $PY qs_residuals.py 40                  # residual table for the explicit families (minutes)
     $PY qs_other_families.py                # same for the vacuum and N-field-period families

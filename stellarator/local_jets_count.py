@@ -48,18 +48,52 @@ class Variant(Jets):
         raise ValueError(self.mode)
 
 
-def tangent_dims(J, x, kmax):
+def gap_rank(s, floor=1e-13):
+    """Numerical rank from the largest gap in the singular values. Returns (rank, gap), where
+    gap = (smallest value kept) / (largest value dropped). A gap below about 1e3 means the count
+    is not trustworthy at this order."""
+    if len(s) < 2:
+        return len(s), np.inf
+    s = np.maximum(s, floor * s[0])
+    ratios = s[:-1] / s[1:]
+    i = int(np.argmax(ratios))
+    if ratios[i] < 10:  # no gap at all: full rank
+        return len(s), 1.0
+    return i + 1, float(ratios[i])
+
+
+def tangent_dims(J, x, kmax, rho=0.4):
     """Dimension of the projection of the solution set's tangent space onto the Taylor
-    coefficients of B of degree <= k, for k = 1 .. kmax."""
-    _, s, Vt = np.linalg.svd(J.jacobian(x))
-    rank = int((s > 1e-9 * s[0]).sum())
+    coefficients of B of degree <= k, for k = 1 .. kmax, with the reliability gap of each count.
+
+    The Jacobian is rescaled as if lengths were measured in units of 1/rho (coefficients of
+    degree d scale by rho^d). Without this, free directions that need large high-degree
+    coefficients have singular values that shrink tenfold per order and get miscounted."""
+    Jac = J.jacobian(x)
+    col = np.concatenate([rho ** J.deg[m] for m in J.masks])
+    n_eq = int(J.eq_mask.sum())
+    blocks = (len(Jac) - 6) // n_eq if J.mode != "mhs" else None
+    if blocks is None:
+        row = np.ones(len(Jac))
+    else:
+        row = np.concatenate([rho ** (-(J.deg[J.eq_mask] + 1.0))] * 9 + [np.ones(6)]
+                             + [rho ** (-(J.deg[J.eq_mask] + 1.0))] * (blocks - 9))
+    _, s, Vt = np.linalg.svd(Jac * col * row[:, None])
+    if rho == 1.0:  # plain thresholds; adequate for the symmetric reference, whose counts settle at once
+        rank, gap0 = int((s > 1e-9 * s[0]).sum()), np.inf
+    else:
+        rank, gap0 = gap_rank(s)
+        if rank == len(s) and Jac.shape[1] > len(s):
+            gap0 = np.inf
     ker = Vt[rank:].T
-    dims = []
+    dims, gaps = [], [gap0]
     for k in range(1, kmax + 1):
         rows = np.concatenate([J.offsets[f] + np.cumsum(J.masks[f])[J.masks[f] & (J.deg <= k)] - 1 for f in range(3)])
         sv = np.linalg.svd(ker[rows], compute_uv=False)
-        dims.append(int((sv > 1e-7).sum()))
-    return dims, J.nvar - rank
+        r, g = (int((sv > 1e-7).sum()), np.inf) if rho == 1.0 else gap_rank(sv)
+        dims.append(r)
+        gaps.append(g)
+    return dims, J.nvar - rank, gaps
 
 
 def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print):
@@ -76,12 +110,14 @@ def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print):
     K = Kstart
     while True:
         t0 = time.time()
-        dims, free = tangent_dims(J, x, min(kmax, K))
+        dims, free, gaps = tangent_dims(J, x, min(kmax, K), rho=0.4 if mode == "qs" else 1.0)
         extra = ""
         if mode != "mhs":
             extra = f"  sym_B(deg<=2) {J.sym_B(x, 2):8.2e}  kill_u {J.kill_u(x):8.2e}"
         out(f"{mode:8s} K={K:2d}  free dims {free:5d}  B-polynomial freedom k=1.. : "
-            + " ".join(f"{v:4d}" for v in dims) + extra + f"   [{time.time() - t0:.0f}s]")
+            + " ".join(f"{v:4d}" for v in dims) + extra
+            + "  log10 gaps: " + " ".join("inf" if not np.isfinite(g) else f"{np.log10(g):.0f}" for g in gaps)
+            + f"   [{time.time() - t0:.0f}s]")
         if K == Kmax:
             return
         Jn = Variant(K + 1, mode)
