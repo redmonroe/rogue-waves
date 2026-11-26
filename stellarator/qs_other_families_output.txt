@@ -1,1 +1,8 @@
 field                                                           check     triple       frob
+Lopez vacuum field (12 points in the torus)                   1.3e-40        n/a    6.5e-01   [167s]
+Issan N=1, k=1, rho_a=3/2                                     1.9e-39    1.0e-02    1.4e-02   [14s]
+Issan N=2, k=1, rho_a=3/2                                     6.1e-39    1.6e-02    2.6e-02   [15s]
+Issan N=3, k=1, rho_a=13/10                                   7.1e-39    4.8e-02    7.5e-02   [33s]
+Issan N=2, k=0, rho_a=1                                       4.0e-39    6.9e-02    3.7e-01   [7s]
+Issan N=3, k=0, rho_a=1/2                                     5.4e-40    5.1e-03    1.0e-02   [14s]
+Issan N=3, k=-1, rho_a=4/5                                    1.9e-39    1.4e-02    2.4e-02   [14s]
