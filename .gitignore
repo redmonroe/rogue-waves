@@ -3,3 +3,6 @@ code/
 .venv/
 .lake/
 __pycache__/
+
+# local-test checkpoints are added by hand (git add -f) when a run finishes
+stellarator/runs/*.npy
