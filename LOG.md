@@ -360,7 +360,29 @@ the cloud session; no Mac run needed.
 - Seed 13 at order 9: symmetric to 40 digits (1.0e-40).
 - So the non-symmetric solutions at orders up to 7 are real solutions of the truncated equations,
   and the symmetric endings are exact, not rounding.
-- A fresh batch of eight seeds (100 to 107) was started; results in `runs/hp_strong.txt` when done.
+- Batch of eight new seeds (100 to 107), every entry a solution polished to 37 to 53 digits
+  unless marked. Symmetry measure of B:
+
+  | seed | K=4 | K=5 | K=6 | K=7 | K=8 | K=9 |
+  |---|---|---|---|---|---|---|
+  | 100 | 0.31 | 0.23 | 0.13 | 0.077 | step stalled at 0.018 | |
+  | 101 | 0.21 | 0.16 | 0.045 | 0.0092 | step stalled at 1e-4 | |
+  | 102 | 0.36 | 0.21 | 0.088 | 0.88 | step stalled at 0.05 | |
+  | 103 | 0.23 | 0.12 | 0.097 | 0.025 | 1.8e-42 | 4.0e-45 |
+  | 104 | 0.22 | 0.82 | 0.80 | 0.83 | 0.0033 | step stalled at 3e-6 |
+  | 105 | 0.42 | 0.28 | 0.082 | 0.021 | 2.9e-40 | 6.4e-44 |
+  | 106 | 0.30 | 0.16 | 0.14 | 0.13 | 0.0029 | 3.5e-42 |
+  | 107 | 0.27 | 0.11 | 0.088 | 0.046 | 0.036 | 4.4e-43 |
+
+- Order 8 does not force symmetry: seeds 104, 106 and 107 are non-symmetric solutions there,
+  verified to 37 to 44 digits. Order 9 does in every run that got there: four of four are
+  symmetric to 42 digits or better.
+- Four runs stalled in the double-precision step (coefficients 6e3 to 1e5). They are neither
+  for nor against. Rescaling the length unit (`rescale` option of `local_extend.py`) was tried
+  on seed 100 and did not help in the few steps run; left off by default.
+- A longer batch for the Mac: `local_strong_hp.py --seeds 200:216 --kmax 10 --steps 400
+  --out runs/hp_strong_mac.txt`.
+Evidence: `stellarator/runs/hp_strong.txt`.
 
 **Exact arithmetic: nothing non-symmetric branches off an axisymmetric equilibrium, to first
 order, under the strong form (`local_modp.py`).**
