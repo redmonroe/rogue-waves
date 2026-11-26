@@ -9,7 +9,7 @@ backtracking, as in local_jets.py; if no length works, the smallest singular val
 (Levenberg-Marquardt damping, and picking the greediest of several truncated steps, were both
 tried and both crawled along a narrow valley where the plain step converges in about 6.)
 
-Usage:  python local_extend.py K [seed] [max_steps]      extends runs/local_qs_seed{seed}_K{K}.npy
+Usage:  python local_extend.py K [seed] [max_steps] [mode]   extends runs/local_{mode}_seed{seed}_K{K}.npy
 """
 import os
 import sys
@@ -43,11 +43,11 @@ def jacobian(J, x, workers):
     return np.vstack(parts).T
 
 
-def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir="runs"):
-    path = lambda k, tag="": os.path.join(ckpt_dir, f"local_qs_seed{seed}_K{k}{tag}.npy")
-    lower = Variant(K, "qs")
+def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir="runs", mode="qs"):
+    path = lambda k, tag="": os.path.join(ckpt_dir, f"local_{mode}_seed{seed}_K{k}{tag}.npy")
+    lower = Variant(K, mode)
     x_lower = np.load(path(K))
-    J = Variant(K + 1, "qs")
+    J = Variant(K + 1, mode)
     rng = np.random.default_rng(seed)
     if os.path.exists(path(K + 1, "_partial")):
         x = np.load(path(K + 1, "_partial"))
@@ -103,4 +103,5 @@ if __name__ == "__main__":
     K = int(sys.argv[1])
     seed = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     steps = int(sys.argv[3]) if len(sys.argv) > 3 else 200
-    extend(K, seed, steps, out=lambda s: print(s, flush=True))
+    mode = sys.argv[4] if len(sys.argv) > 4 else "qs"
+    extend(K, seed, steps, out=lambda s: print(s, flush=True), mode=mode)
