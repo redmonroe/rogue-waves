@@ -1,0 +1,25 @@
+u . grad(phi - theta) : 0
+div u                 : 0
+div B                 : 0
+curl(u x B)           : [0, 0, 0]
+(curl B) x u + grad(u.B): [0, 0, 0]
+u . grad |B|^2        : 0
+strain S              : [[0, z*Derivative(theta(y), (y, 2))/2, 0], [z*Derivative(theta(y), (y, 2))/2, 0, -x*Derivative(theta(y), (y, 2))/2], [0, -x*Derivative(theta(y), (y, 2))/2, 0]]
+tr S, det S           : 0 0
+S . e3                : [0, 0, 0]
+[u, e3]               : [0, 0, 0]
+S : S                 : (x**2 + z**2)*Derivative(theta(y), (y, 2))**2/2
+curl(J x B)           : [2*z*G(-theta(y) + atan2(x, z))*Derivative(theta(y), y)*Subs(Derivative(G(_xi_1), _xi_1), _xi_1, -theta(y) + atan2(x, z))/(x**2 + z**2)**2, 2*G(-theta(y) + atan2(x, z))*Subs(Derivative(G(_xi_1), _xi_1), _xi_1, -theta(y) + atan2(x, z))/(x**2 + z**2)**2, -2*x*G(-theta(y) + atan2(x, z))*Derivative(theta(y), y)*Subs(Derivative(G(_xi_1), _xi_1), _xi_1, -theta(y) + atan2(x, z))/(x**2 + z**2)**2]
+J = lambda u, lambda  : -Subs(Derivative(G(_xi_1), _xi_1), _xi_1, -theta(y) + atan2(x, z))/(x**2 + z**2)
+
+rigid-symmetry measure, tan(theta/2) = y, G = cos^2          : 0.0156
+rigid-symmetry measure, theta = 0.7 y (control: screw)       : 2.55e-41
+rigid-symmetry measure, tan(theta/2) = y, G = 1 (control)    : 9.94e-42
+
+second family: u = d/dx + a(y) exp(kappa x) d/dz
+div u, div B          : 0 0
+curl(u x B)           : [0, 0, 0]
+(curl B) x u + grad(u.B): [0, 0, 0]
+S : S                 : (kappa**2*a(y)**2 + Derivative(a(y), y)**2)*exp(2*kappa*x)/2
+rigid-symmetry measure, a = y, Phi = square                 : 0.0341
+rigid-symmetry measure, a = exp(y) (control: one direction) : 1.06e-41
