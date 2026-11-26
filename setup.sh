@@ -3,7 +3,7 @@
 set -e
 cd "$(dirname "$0")"
 
-# 1. Paper code (Häfner et al. 2023, MIT license)
+# 1. Rogue wave paper code (Häfner et al. 2023, MIT license); only needed with --data
 [ -d code ] || git clone --depth 1 https://github.com/dionhaefner/rogue-wave-discovery.git code
 
 # 2. Lean toolchain + prebuilt Mathlib
@@ -13,7 +13,7 @@ export PATH="$HOME/.elan/bin:$PATH"
 
 # 3. Python env for reading the data
 [ -d .venv ] || python3 -m venv .venv
-.venv/bin/pip install -q pyarrow
+.venv/bin/pip install -q pyarrow sympy mpmath
 
-# 4. Data: 157 parquet files, 6.2 GB, from erda.ku.dk (resumable)
-bash fetch_data.sh
+# 4. Rogue wave data (optional): 157 parquet files, 6.2 GB, from erda.ku.dk (resumable)
+if [ "$1" = "--data" ]; then bash fetch_data.sh; fi
