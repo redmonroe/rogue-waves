@@ -1,0 +1,54 @@
+# first run (absolute convergence test; seeds 10 and 13 stopped early by it)
+seed 10
+   K=4  sym_B 2.73e-01  kill_u 1.36e-01  max|x| 1.0e+00  residual 4.5e-16
+   K=5  sym_B 2.21e-01  kill_u 1.37e-01  max|x| 3.1e+01  residual 4.4e-14
+   K=6  NOT CONVERGED after 12 steps [4s]: sym_B 7.42e-01  kill_u 7.96e-02  max|x| 1.2e+03  residual 1.3e-12
+seed 11
+   K=4  sym_B 2.33e-01  kill_u 1.92e-01  max|x| 1.0e+00  residual 5.8e-16
+   K=5  sym_B 2.15e-01  kill_u 1.24e-01  max|x| 1.0e+00  residual 2.2e-15
+   K=6  sym_B 1.93e-01  kill_u 8.10e-02  max|x| 2.3e+00  residual 6.7e-15
+   K=7  sym_B 1.05e-01  kill_u 3.51e-02  max|x| 3.2e+02  residual 6.9e-13
+   K=8  sym_B 1.16e-14  kill_u 2.28e-15  max|x| 2.3e+03  residual 9.8e-13
+   K=9  NOT CONVERGED after 20 steps [53s]: sym_B 1.07e-07  kill_u 1.19e-08  max|x| 2.1e+03  residual 1.0e-07
+seed 12
+   K=4  sym_B 2.64e-01  kill_u 4.26e-01  max|x| 1.0e+00  residual 5.9e-16
+   K=5  sym_B 1.55e-01  kill_u 2.38e-01  max|x| 1.0e+00  residual 2.5e-15
+   K=6  sym_B 1.31e-01  kill_u 1.40e-01  max|x| 4.1e+00  residual 6.8e-13
+   K=7  sym_B 3.24e-01  kill_u 1.21e-01  max|x| 4.2e+02  residual 5.5e-13
+   K=8  sym_B 2.04e-14  kill_u 8.34e-15  max|x| 4.4e+03  residual 9.4e-13
+   K=9  NOT CONVERGED after 25 steps [67s]: sym_B 2.19e-14  kill_u 1.49e-15  max|x| 3.5e+03  residual 8.9e-12
+seed 13
+   K=4  sym_B 2.16e-01  kill_u 6.00e-02  max|x| 1.0e+00  residual 4.4e-16
+   K=5  sym_B 9.29e-01  kill_u 2.93e-02  max|x| 2.9e+00  residual 4.9e-15
+   K=6  sym_B 1.20e+00  kill_u 5.39e-02  max|x| 4.0e+01  residual 6.3e-14
+   K=7  sym_B 4.40e-01  kill_u 7.53e-02  max|x| 1.6e+02  residual 3.4e-13
+   K=8  NOT CONVERGED after 22 steps [32s]: sym_B 1.99e-01  kill_u 2.74e-02  max|x| 1.8e+04  residual 2.8e-12
+seed 14
+   K=4  sym_B 3.57e-01  kill_u 4.69e-02  max|x| 1.0e+00  residual 4.0e-16
+   K=5  sym_B 3.04e-01  kill_u 3.80e-02  max|x| 1.0e+00  residual 2.6e-15
+   K=6  sym_B 1.46e-01  kill_u 1.31e-02  max|x| 7.2e+00  residual 2.1e-14
+   K=7  sym_B 4.95e-02  kill_u 2.11e-03  max|x| 2.9e+02  residual 2.9e-13
+   K=8  NOT CONVERGED after 120 steps [157s]: sym_B 6.98e-03  kill_u 2.97e-04  max|x| 4.2e+04  residual 4.5e-01
+seed 15
+   K=4  sym_B 3.94e-01  kill_u 2.49e-01  max|x| 1.0e+00  residual 6.5e-16
+   K=5  sym_B 5.51e-01  kill_u 1.88e-01  max|x| 1.9e+00  residual 4.6e-15
+   K=6  sym_B 3.67e-01  kill_u 3.26e-02  max|x| 9.1e+00  residual 2.2e-14
+   K=7  sym_B 2.09e-01  kill_u 4.79e-02  max|x| 1.1e+03  residual 5.8e-13
+   K=8  sym_B 8.79e-04  kill_u 3.00e-04  max|x| 2.6e+03  residual 9.9e-13
+   K=9  NOT CONVERGED after 9 steps [27s]: sym_B 1.27e-14  kill_u 1.38e-15  max|x| 1.4e+03  residual 2.8e-12
+
+# seeds 10 and 13 continued with the relative convergence test
+seed 10
+   K=4  sym_B 2.73e-01  kill_u 1.36e-01  max|x| 1.0e+00  residual 4.5e-16
+   K=5  sym_B 2.21e-01  kill_u 1.37e-01  max|x| 3.1e+01  residual 2.9e-12
+   K=6  sym_B 7.42e-01  kill_u 7.96e-02  max|x| 1.2e+03  residual 1.3e-12
+   K=7  sym_B 8.84e-01  kill_u 4.82e-02  max|x| 2.0e+04  residual 8.8e-10
+   K=8  sym_B 9.06e-02  kill_u 4.30e-03  max|x| 2.0e+04  residual 5.5e-09
+   K=9  sym_B 3.80e-14  kill_u 4.55e-15  max|x| 2.7e+03  residual 9.4e-12
+seed 13
+   K=4  sym_B 2.16e-01  kill_u 6.00e-02  max|x| 1.0e+00  residual 4.4e-16
+   K=5  sym_B 9.29e-01  kill_u 2.93e-02  max|x| 2.9e+00  residual 4.9e-15
+   K=6  sym_B 1.20e+00  kill_u 5.39e-02  max|x| 4.0e+01  residual 6.3e-14
+   K=7  sym_B 4.40e-01  kill_u 7.53e-02  max|x| 1.6e+02  residual 3.4e-13
+   K=8  sym_B 1.99e-01  kill_u 2.74e-02  max|x| 1.8e+04  residual 2.8e-12
+   K=9  sym_B 3.94e-13  kill_u 8.69e-15  max|x| 9.7e+03  residual 7.2e-11

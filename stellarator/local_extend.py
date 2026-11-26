@@ -81,6 +81,12 @@ def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir
             if found:
                 break
         if not found:
+            if nr < 1e-11 * max(1.0, np.abs(x).max()):   # stalled at rounding level: converged
+                np.save(path(K + 1), x)
+                os.remove(path(K + 1, "_partial"))
+                out(f"step {it:3d}  residual {nr:9.3e} at rounding level; saved order {K + 1}")
+                out(f"converged: saved order {K + 1}")
+                return True
             out(f"step {it:3d}  no step reduces the residual ({nr:.3e}); stopping")
             return False
         lam = (cut, t)
@@ -90,7 +96,7 @@ def extend(K, seed=0, max_steps=200, workers=os.cpu_count(), out=print, ckpt_dir
         np.save(path(K + 1, "_partial"), x)
         out(f"step {it:3d}  residual {nr:9.3e}  cutoff {lam[0]:5.0e} length {lam[1]:4.2f}  |dB| {moved:8.2e}  "
             f"sym_B {J.sym_B(x, 2):8.2e}  kill_u {J.kill_u(x):8.2e}  [{time.time() - t0:.0f}s]")
-        if nr < 1e-12:
+        if nr < 1e-12 * max(1.0, np.abs(x).max()):   # relative to the coefficient size
             np.save(path(K + 1), x)
             os.remove(path(K + 1, "_partial"))
             out(f"converged: saved order {K + 1}")

@@ -24,8 +24,9 @@ In order. Move an item to the log when it is done.
    motion? The strong system has far less freedom, so the answer may show at order 8 to 10
    instead of 14. If the equations at some finite order force the stretching part of grad u to
    vanish, that is a finite algebraic statement and a candidate for an exact proof and a Lean
-   certificate. Done so far: one solution collapses onto the symmetric family at order 8 (log).
-   Next: (a) more seeds, to see whether every solution does; (b) a well-scaled symmetric
+   certificate. Done so far: seven solutions, all ending on the symmetric family by order 9
+   (log). Next: (a) solve from scratch at order 8 and 9, and repeat in extended precision
+   (mpmath or a quad-precision library; this is the run for the Mac); (b) a well-scaled symmetric
    solution from a closed form (as `local_planar_check.py` does for the planar family) and the
    first-order count there; (c) if both agree, exact rational arithmetic for the first-order
    statement at order 8 to 10, then Lean. Note what (c) would and would not prove: that nothing
@@ -321,6 +322,34 @@ Newton steps and the count at order 7 has no clean gap. Running further.
   change survive?) could not be read: symmetric solutions found by Newton iteration are badly
   scaled (largest coefficient 7e3 at order 6) and the rank decisions fail from order 5.
 Evidence: `stellarator/local_strong_ladder_output.txt`.
+
+**Local test, strong form, six more solutions: all end symmetric by order 9.**
+`local_strong_seeds.py`: for each seed, the best-scaled non-symmetric solution at order 4,
+carried upward. Symmetry measure of B at each order:
+
+| seed | K=4 | K=5 | K=6 | K=7 | K=8 | K=9 |
+|---|---|---|---|---|---|---|
+| 10 | 0.27 | 0.22 | 0.74 | 0.88 | 0.09 | 4e-14 |
+| 11 | 0.23 | 0.22 | 0.19 | 0.11 | 1e-14 | (stays, step not converged) |
+| 12 | 0.26 | 0.16 | 0.13 | 0.32 | 2e-14 | 2e-14 (step not converged) |
+| 13 | 0.22 | 0.93 | 1.20 | 0.44 | 0.20 | 4e-13 |
+| 14 | 0.36 | 0.30 | 0.15 | 0.05 | 0.007 (step not converged) | |
+| 15 | 0.39 | 0.55 | 0.37 | 0.21 | 9e-4 | 1e-14 (step not converged) |
+
+- Five of six reach a symmetry measure at rounding level (1e-13 or below) at order 8 or 9; the
+  stretch in u goes to 1e-15 with it. The sixth was at 0.007 and falling when its step limit ran
+  out. With seed 1 above, that is seven solutions with the same ending.
+- A measure of 1e-14 is not "small": it is zero to the precision of the arithmetic. The
+  iteration lands exactly on the symmetric family, not near it.
+- Coefficients grow to 1e3 to 1e4 on the way, so these runs are near the limit of double
+  precision. Residuals relative to coefficient size stay at 1e-15.
+- Fixed along the way: `local_extend.py` used an absolute convergence test, which stopped seeds
+  10 and 13 early; now relative to coefficient size.
+- Reading: evidence that force balance plus strong quasisymmetry force a rigid symmetry near a
+  generic point, with the forcing complete at order 8 or 9. Not a proof. Not checked: solutions
+  found from scratch at order 9 (only solutions carried up from order 4), other normalisations,
+  higher precision.
+Evidence: `stellarator/local_strong_seeds_output.txt`.
 
 **The strong system, reduced by hand (not machine-checked).**
 With force balance, strong quasisymmetry, and u . grad p = 0: curl B = -C'(psi) B - p'(psi) u
