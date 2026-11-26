@@ -33,10 +33,10 @@ In order. Move an item to the log when it is done.
    few rational points). Link both certificates to the operators in `Stellarator/Defs.lean` and
    state "IsMHSOn and IsWeakQSOn and not symmetric" in one theorem. This also tests the
    definitions on a real example.
-4. **Local test, order 14 and beyond.** Finish the order-14 step (`local_extend.py 13`), then
-   the count (`local_jets_project.py 14 qs 0`). Lower priority now: the planar family shows the
-   local question has a non-symmetric answer, so this test cannot prove non-existence. What it
-   can still say: whether the branch it is following (field lines not planar) dies out.
+4. **Local test.** The order-14 step is heading into the symmetric family (log). To make that
+   solid: repeat from a second seed, and start the test on the planar family (a known
+   non-symmetric solution) to confirm the method keeps a real branch alive. Lower priority: the
+   planar family shows this test cannot prove non-existence by itself.
 5. **Remaining published families.** Sengupta et al. vacuum family (arXiv:2610.28466) not yet
    read. Their force-free family (arXiv:2611.31603) cannot be tested until the companion paper
    with its formulas appears.
@@ -180,8 +180,14 @@ nothing. Rewritten as `local_extend.py`: one log line per Newton step, iterate s
 Jacobian on all cores (45 s per step when the machine is otherwise idle).
 - The step is converging, slowly: residual 1.2 to 2e-3 in 19 steps, with shortened steps.
 - Along the way the solution's symmetry measure keeps falling: 0.071 (order 13) to 0.016.
-- Not finished at the time of writing. Partial iterate: `runs/local_qs_seed0_K14_partial.npy`
-  (not tracked).
+- Result after 80 steps (the limit): not converged. Residual 4.4e-5 and still falling about 4%
+  per step; symmetry measure 0.0030, down from 0.071; steps shortened to 6% of full length.
+- Reading: at order 14 the solution is being pulled onto the symmetric family, and the slow,
+  shortened steps are what Newton's method does near a point where two solution sets meet.
+  So the branch followed since order 3 appears to end in the symmetric family at order 14.
+  Not proved: one solution, one seed, not converged.
+- Evidence: `stellarator/local_extend_output.txt`. Partial iterate saved as
+  `runs/local_qs_seed0_K14_partial.npy`; `local_extend.py 13` resumes from it.
 - Two other solvers were tried for this step and were worse: Levenberg-Marquardt damping, and
   picking the greediest of several truncated steps. Both crawl along a narrow valley.
 
@@ -242,4 +248,4 @@ function of psi only. Three unknown functions, four conditions.
 **Not completed today.**
 - Calibration run (lost in a restart).
 - Sengupta vacuum family.
-- Local test at order 14 (step still running).
+- Local test at order 14: step run to its limit, not converged (see above).
