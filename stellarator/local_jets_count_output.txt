@@ -1,0 +1,2 @@
+free parameters in the Taylor polynomial of B of degree <= k, among degree-K truncated solutions
+ K                      qs  k=1,2,3,4,5,6,7                 killing  k=1,2,3,4,5,6,7
