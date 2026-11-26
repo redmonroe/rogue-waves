@@ -24,8 +24,12 @@ In order. Move an item to the log when it is done.
    motion? The strong system has far less freedom, so the answer may show at order 8 to 10
    instead of 14. If the equations at some finite order force the stretching part of grad u to
    vanish, that is a finite algebraic statement and a candidate for an exact proof and a Lean
-   certificate. Steps: finish the numerical run (`local_jets_project.py 11 strong 0`), second
-   seed, then exact arithmetic at the order where it closes.
+   certificate. Done so far: one solution collapses onto the symmetric family at order 8 (log).
+   Next: (a) more seeds, to see whether every solution does; (b) a well-scaled symmetric
+   solution from a closed form (as `local_planar_check.py` does for the planar family) and the
+   first-order count there; (c) if both agree, exact rational arithmetic for the first-order
+   statement at order 8 to 10, then Lean. Note what (c) would and would not prove: that nothing
+   non-symmetric branches off that symmetric solution, not that no non-symmetric solution exists.
 2. **Recipe type 2, continued: look for a version with rotational transform.** The planar
    family works because the symmetry flow is a rigid motion on each plane and B lies in the
    planes. Try: symmetry fields of the form u = K0 + f K1 + ... (K rigid motions, f functions),
@@ -293,6 +297,40 @@ checked: zero on a symmetric solution, 0.012 on the planar family). First counts
 7, 16, 24, 29, 33, 39 at order 7, against 7, 18, 33, 49, 63, 80 for the weak form and
 7, 12, 16, 20, 24, 28 for symmetric fields. The order-6 to order-7 step already needed 60
 Newton steps and the count at order 7 has no clean gap. Running further.
+
+**Local test, strong form: results so far.**
+- Independent random solutions get more symmetric with order. Symmetry measure of B over 2 to 8
+  solutions per order: 1 to 20 at order 3; 0.3 to 0.7 at order 4; 0.14 to 0.34 at order 5; 0.13 to
+  0.15 at order 6.
+- Seed 0 was a badly scaled solution (largest coefficient 1.6e4 at order 7); dropped.
+- Seed 1, picked at order 4 as the best-scaled of 39 non-symmetric solutions, carried upward:
+
+  | K | freedom in B, k = 1.. | symmetry of B | stretch in u | largest coefficient | min log10 gap |
+  |---|---|---|---|---|---|
+  | 4 | 7 16 24 | 0.36 | 0.35 | 1.0 | 10.2 |
+  | 5 | 7 16 24 30 | 0.34 | 0.23 | 1.0 | 8.8 |
+  | 6 | 7 16 24 29 33 | 0.25 | 0.14 | 1.0 | 8.7 |
+  | 7 | 7 16 24 29 33 42 | 0.07 | 0.04 | 2.4e2 | 1.3 (not reliable) |
+  | 8 | step not converged | 1e-4 | 4e-5 | 2.4e3 | |
+
+- Reading: under the strong form the solution is pushed onto the symmetric family by order 8,
+  with its coefficients running away. This is the behaviour the weak form showed at order 14,
+  six orders earlier. It is what one would see if force balance plus strong quasisymmetry forced
+  a rigid symmetry near a point. One solution; double precision; no proof.
+- A first-order version of the same question at a symmetric solution (does any non-symmetric
+  change survive?) could not be read: symmetric solutions found by Newton iteration are badly
+  scaled (largest coefficient 7e3 at order 6) and the rank decisions fail from order 5.
+Evidence: `stellarator/local_strong_ladder_output.txt`.
+
+**The strong system, reduced by hand (not machine-checked).**
+With force balance, strong quasisymmetry, and u . grad p = 0: curl B = -C'(psi) B - p'(psi) u
+with C = u . B. So u is determined by B, and the whole system is
+  div B = 0,   (curl B) x B = p'(psi) grad psi,   (curl B) . B = -C'(psi) |B|^2 - p'(psi) C(psi):
+five equations for B and psi, plus two free functions of one variable. This is the standard
+form in which quasisymmetric equilibria are studied (the near-axis expansions of Garren and
+Boozer use it), so the strong local test is the same question asked at a generic point instead
+of on the axis. Weak quasisymmetry allows the coefficient of B to vary across field lines within
+a surface; that extra room is what the planar family uses.
 
 **Recipe type 2 in coordinates (derived by hand, not machine-checked).**
 A field with div B = 0, div u = 0, B x u = grad psi and |B| constant along u is the same thing

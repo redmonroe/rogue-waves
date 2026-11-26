@@ -1,0 +1,7 @@
+strong K= 4  freedom in B, k=1.. :    7   16   24   sym_B 3.56e-01  kill_u 3.49e-01  max|x| 1.0e+00  residual 6.0e-16  min log10 gap 10.2
+   4 -> 5: 6 steps; last: step   5  residual 1.298e-15  cutoff 1e-12 length 1.00  |dB| 7.59e-13  sym_B 3.40e-01  kill_u 2.29e-01  [0s]
+strong K= 5  freedom in B, k=1.. :    7   16   24   30   sym_B 3.40e-01  kill_u 2.29e-01  max|x| 1.0e+00  residual 1.3e-15  min log10 gap  8.8
+   5 -> 6: 6 steps; last: step   5  residual 1.972e-15  cutoff 1e-12 length 1.00  |dB| 1.35e-10  sym_B 2.45e-01  kill_u 1.42e-01  [0s]
+strong K= 6  freedom in B, k=1.. :    7   16   24   29   33   sym_B 2.45e-01  kill_u 1.42e-01  max|x| 1.0e+00  residual 2.0e-15  min log10 gap  8.7
+   6 -> 7: 13 steps; last: step  12  residual 2.832e-13  cutoff 1e-12 length 1.00  |dB| 4.65e-07  sym_B 7.05e-02  kill_u 3.77e-02  [1s]
+strong K= 7  freedom in B, k=1.. :    7   16   24   29   33   42   sym_B 7.05e-02  kill_u 3.77e-02  max|x| 2.4e+02  residual 2.8e-13  min log10 gap  1.3
