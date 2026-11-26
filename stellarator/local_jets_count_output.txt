@@ -1,2 +1,8 @@
-free parameters in the Taylor polynomial of B of degree <= k, among degree-K truncated solutions
- K                      qs  k=1,2,3,4,5,6,7                 killing  k=1,2,3,4,5,6,7
+qs       K= 3  free dims    92  B-polynomial freedom k=1.. :    7   18   33  sym_B(deg<=2) 2.11e+00  kill_u 2.32e+00   [1s]
+qs       K= 4  free dims   134  B-polynomial freedom k=1.. :    7   18   33   50  sym_B(deg<=2) 8.76e-01  kill_u 9.64e-01   [1s]
+qs       K= 5  free dims   181  B-polynomial freedom k=1.. :    7   18   33   49   68  sym_B(deg<=2) 5.32e-01  kill_u 5.49e-01   [1s]
+qs       K= 6  free dims   232  B-polynomial freedom k=1.. :    7   18   33   49   65   86  sym_B(deg<=2) 3.46e-01  kill_u 3.80e-01   [4s]
+qs       K= 7  free dims   286  B-polynomial freedom k=1.. :    7   18   33   49   63   80  103  sym_B(deg<=2) 2.89e-01  kill_u 3.36e-01   [7s]
+qs       K= 8  free dims   342  B-polynomial freedom k=1.. :    7   18   33   49   61   74   93  118  sym_B(deg<=2) 2.59e-01  kill_u 3.69e-01   [16s]
+qs       K= 9  free dims   399  B-polynomial freedom k=1.. :    7   18   33   49   59   68   82  103  130  sym_B(deg<=2) 2.20e-01  kill_u 3.70e-01   [24s]
+qs       K=10  free dims   456  B-polynomial freedom k=1.. :    7   18   33   49   57   62   71   86  109  sym_B(deg<=2) 2.16e-01  kill_u 3.37e-01   [34s]

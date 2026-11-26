@@ -129,8 +129,23 @@ class Jets:
         return np.array(cols).T
 
     # -- solver
-    def solve(self, rng, scale=0.5, tol=1e-12, max_iter=60):
-        x = np.concatenate([rng.normal(size=s) * (scale ** self.deg[m]) for m, s in zip(self.masks, self.sizes)])
+    def extend_from(self, lower, x_lower, rng, noise=0.0):
+        """Starting point for this (higher) order from a solution at a lower order: same
+        coefficients, with the new top-degree coefficients zero or small random numbers.
+        Works because the monomials are ordered by degree, so the lower list is a prefix."""
+        parts = []
+        for f in range(8):
+            a = np.zeros(self.N)
+            a[:lower.N][lower.masks[f]] = x_lower[lower.offsets[f]:lower.offsets[f] + lower.sizes[f]]
+            new = self.masks[f].copy()
+            new[:lower.N] &= ~lower.masks[f]
+            a[new] = noise * rng.normal(size=int(new.sum()))
+            parts.append(a[self.masks[f]])
+        return np.concatenate(parts)
+
+    def solve(self, rng, scale=0.5, tol=1e-12, max_iter=60, x0=None):
+        x = x0 if x0 is not None else np.concatenate(
+            [rng.normal(size=s) * (scale ** self.deg[m]) for m, s in zip(self.masks, self.sizes)])
         r = self.residual(x)
         for it in range(max_iter):
             nr = np.linalg.norm(r)

@@ -48,38 +48,58 @@ class Variant(Jets):
         raise ValueError(self.mode)
 
 
-def count(K, mode, seed=0, kmax=4):
-    J = Variant(K, mode)
+def tangent_dims(J, x, kmax):
+    """Dimension of the projection of the solution set's tangent space onto the Taylor
+    coefficients of B of degree <= k, for k = 1 .. kmax."""
+    _, s, Vt = np.linalg.svd(J.jacobian(x))
+    rank = int((s > 1e-9 * s[0]).sum())
+    ker = Vt[rank:].T
+    dims = []
+    for k in range(1, kmax + 1):
+        rows = np.concatenate([J.offsets[f] + np.cumsum(J.masks[f])[J.masks[f] & (J.deg <= k)] - 1 for f in range(3)])
+        sv = np.linalg.svd(ker[rows], compute_uv=False)
+        dims.append(int((sv > 1e-7).sum()))
+    return dims, J.nvar - rank
+
+
+def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print):
+    """Find one solution at order Kstart, then carry it up one order at a time."""
     rng = np.random.default_rng(seed)
-    for _ in range(8):
+    J = Variant(Kstart, mode)
+    for _ in range(20):
         x, nr, _ = J.solve(rng)
         if nr < 1e-10:
             break
     else:
-        return None
-    Jac = J.jacobian(x)
-    _, s, Vt = np.linalg.svd(Jac)
-    rank = int((s > 1e-9 * s[0]).sum())
-    ker = Vt[rank:].T  # columns span the tangent space of the solution set
-    dims = []
-    for k in range(1, kmax + 1):
-        rows = np.concatenate([np.where(J.masks[f] & (J.deg <= k))[0] * 0 + J.offsets[f]
-                               + np.cumsum(J.masks[f])[J.masks[f] & (J.deg <= k)] - 1 for f in range(3)])
-        sv = np.linalg.svd(ker[rows], compute_uv=False)
-        dims.append(int((sv > 1e-7).sum()))
-    return dims
+        out(f"{mode}: no solution found at order {Kstart}")
+        return
+    K = Kstart
+    while True:
+        t0 = time.time()
+        dims, free = tangent_dims(J, x, min(kmax, K))
+        extra = ""
+        if mode != "mhs":
+            extra = f"  sym_B(deg<=2) {J.sym_B(x, 2):8.2e}  kill_u {J.kill_u(x):8.2e}"
+        out(f"{mode:8s} K={K:2d}  free dims {free:5d}  B-polynomial freedom k=1.. : "
+            + " ".join(f"{v:4d}" for v in dims) + extra + f"   [{time.time() - t0:.0f}s]")
+        if K == Kmax:
+            return
+        Jn = Variant(K + 1, mode)
+        t0 = time.time()
+        xn, nr, it = Jn.solve(rng, x0=Jn.extend_from(J, x, rng, noise=0.0))
+        if nr > 1e-10:  # retry with a little randomness in the new coefficients
+            xn, nr, it = Jn.solve(rng, x0=Jn.extend_from(J, x, rng, noise=1e-2))
+        if nr > 1e-10:
+            out(f"{mode:8s} K={K + 1:2d}  could not be extended (residual {nr:.1e} after {it} iterations, {time.time() - t0:.0f}s)")
+            return
+        J, x, K = Jn, xn, K + 1
 
 
 if __name__ == "__main__":
-    Kmax = int(sys.argv[1]) if len(sys.argv) > 1 else 7
-    modes = sys.argv[2].split(",") if len(sys.argv) > 2 else ["mhs", "qs", "killing"]
-    kmax = int(sys.argv[3]) if len(sys.argv) > 3 else 4
-    Kmin = int(sys.argv[4]) if len(sys.argv) > 4 else 3
-    ks = ",".join(str(k) for k in range(1, kmax + 1))
-    print("free parameters in the Taylor polynomial of B of degree <= k, among degree-K truncated solutions")
-    print(f"{'K':>2s}  " + "  ".join(f"{m + '  k=' + ks:>{5 * kmax + 4}s}" for m in modes))
-    for K in range(Kmin, Kmax + 1):
-        t0 = time.time()
-        row = [count(K, m, kmax=kmax) for m in modes]
-        cells = [" ".join(f"{v:4d}" for v in r) if r else "no solution found" for r in row]
-        print(f"{K:2d}  " + "  ".join(f"{c:>{5 * kmax + 4}s}" for c in cells) + f"   [{time.time() - t0:.0f}s]", flush=True)
+    Kmax = int(sys.argv[1]) if len(sys.argv) > 1 else 8
+    modes = sys.argv[2].split(",") if len(sys.argv) > 2 else ["qs", "killing", "mhs"]
+    kmax = int(sys.argv[3]) if len(sys.argv) > 3 else 6
+    seed = int(sys.argv[4]) if len(sys.argv) > 4 else 0
+    say = lambda s: print(s, flush=True)
+    for mode in modes:
+        ladder(mode, Kmax, kmax, seed=seed, out=say)
