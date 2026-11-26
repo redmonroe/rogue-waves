@@ -1,0 +1,7 @@
+# 2026-11-26 16:12  seeds 300:306  kmax 9  digits 40  scratch 9  rescale False  backend gmpy
+scratch seed 300  K=9  no convergence from the random start (step 300  residual 1.602e+00  cutoff 1e-12 length 0.01  |dB| 9.23e-01 )
+scratch seed 301  K=9  no convergence from the random start (step 300  residual 1.714e+00  cutoff 1e-08 length 0.02  |dB| 1.06e+00 )
+scratch seed 302  K=9  no convergence from the random start (step 300  residual 1.158e+00  cutoff 1e-06 length 0.00  |dB| 1.47e-01 )
+scratch seed 303  K=9  no convergence from the random start (step 300  residual 2.063e+00  cutoff 1e-06 length 0.01  |dB| 6.59e-01 )
+scratch seed 304  K=9  no convergence from the random start (step 300  residual 3.091e-01  cutoff 1e-12 length 0.02  |dB| 9.19e-01 )
+scratch seed 305  K=9  no convergence from the random start (step 300  residual 1.677e+00  cutoff 1e-12 length 0.03  |dB| 1.15e+00 )

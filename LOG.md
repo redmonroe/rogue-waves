@@ -22,9 +22,9 @@ In order. Move an item to the log when it is done.
 1. **Strong form: from evidence to proof.** State of play: seven numerical solutions all end
    symmetric by order 9 (checked to 40 digits where polished), and exact arithmetic shows
    nothing branches off a Solov'ev equilibrium to first order. Next, in order:
-   (a) in progress: sixteen-seed batch on the Mac (`runs/hp_strong_mac.txt`), and six solves
-   from random starts directly at order 9 in the cloud (`runs/hp_strong_scratch9.txt`). A test
-   at order 6 from random starts found non-symmetric solutions (0.98, 0.78), as expected there;
+   (a) in progress: sixteen-seed batch on the Mac (`runs/hp_strong_mac.txt`). The six solves
+   from random starts directly at order 9 found nothing (log); a from-scratch test needs a
+   better solver or a start nearer a solution;
    (b) done for three types (rotation, translation, screw); still open: a screw-symmetric
    equilibrium whose field lines are not planar (needs series solutions of the helical
    Grad-Shafranov equation);
@@ -434,6 +434,15 @@ every row).
   torus, with pressure and current, in exact arithmetic. Whether the local version is in the
   literature: not checked.
 Evidence: `stellarator/local_modp_output.txt`.
+
+**Strong form from random starts at order 9: no solution found, so no information.**
+Six random starts (seeds 300 to 305), 300 Newton steps each, no ladder from order 4.
+- None converged: residuals 0.3 to 2.1 after 300 steps, step lengths 0.00 to 0.03.
+- So this says nothing for or against: the solver did not reach any solution at order 9,
+  symmetric or not. At order 6 the same procedure reached non-symmetric solutions (0.98, 0.78)
+  from two of three starts.
+- The gap stays open: every order-9 solution we have was carried up from order 4.
+Evidence: `stellarator/runs/hp_strong_scratch9.txt`.
 
 **The strong system, reduced by hand (not machine-checked).**
 With force balance, strong quasisymmetry, and u . grad p = 0: curl B = -C'(psi) B - p'(psi) u
