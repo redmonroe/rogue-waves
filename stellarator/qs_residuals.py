@@ -15,7 +15,7 @@ import time
 import mpmath as mp
 import sympy as sp
 
-from fields import X, landreman_iota2, landreman_sheared
+from fields import X, issan_iota2, issan_sheared, landreman_iota2, landreman_sheared
 
 mp.mp.dps = 40
 
@@ -90,12 +90,21 @@ CASES = [
     ("Landreman sheared, eps=0, lam=1, S=1 (axisymmetric control)", landreman_sheared(sp.Integer(0), sp.Integer(1), sp.Integer(1)), [(-1.5, 1.5), (-1.5, 1.5), (-1.0, 1.0)]),
     ("Landreman sheared, eps=1/2, lam=1, S=1", landreman_sheared(R(1, 2), sp.Integer(1), sp.Integer(1)), [(-1.5, 1.5), (-1.5, 1.5), (-1.0, 1.0)]),
     ("Landreman sheared, eps=1, lam=2, S=1/2", landreman_sheared(sp.Integer(1), sp.Integer(2), R(1, 2)), [(-1.5, 1.5), (-1.5, 1.5), (-1.0, 1.0)]),
+    ("Issan iota=2, eps=0, tau0=1/3 (axisymmetric control)", issan_iota2(sp.Integer(1), sp.Integer(1), R(1, 3)), [(-1.3, 1.3), (-1.3, 1.3), (-0.45, 0.45)]),
+    ("Issan iota=2, eps=1/4, tau0=1/3", issan_iota2(sp.sqrt(R(5, 4)), sp.sqrt(R(3, 4)), R(1, 3)), [(-1.3, 1.3), (-1.3, 1.3), (-0.45, 0.45)]),
+    ("Issan iota=2, eps=1/2, tau0=-1/2", issan_iota2(sp.sqrt(R(3, 2)), sp.sqrt(R(1, 2)), R(-1, 2)), [(-1.3, 1.3), (-1.3, 1.3), (-0.45, 0.45)]),
+    ("Issan sheared, eps=0, lam=1, S=1, tau1=1/3 (axisymmetric control)", issan_sheared(sp.Integer(0), sp.Integer(1), sp.Integer(1), R(1, 3)), [(-1.5, 1.5), (-1.5, 1.5), (-1.0, 1.0)]),
+    ("Issan sheared, eps=1/2, lam=1, S=1, tau1=1/3", issan_sheared(R(1, 2), sp.Integer(1), sp.Integer(1), R(1, 3)), [(-1.5, 1.5), (-1.5, 1.5), (-1.0, 1.0)]),
+    ("Issan sheared, eps=1, lam=2, S=1/2, tau1=-1/2", issan_sheared(sp.Integer(1), sp.Integer(2), R(1, 2), R(-1, 2)), [(-1.5, 1.5), (-1.5, 1.5), (-1.0, 1.0)]),
 ]
 
 if __name__ == "__main__":
     n_points = int(sys.argv[1]) if len(sys.argv) > 1 else 40
-    print(f"{'field':62s} {'mhs':>10s} {'triple':>10s} {'frob':>10s}   ({n_points} points each)")
+    print(f"{'field':68s} {'mhs':>10s} {'triple':>10s} {'frob':>10s}   ({n_points} points each)")
+    only = sys.argv[2] if len(sys.argv) > 2 else ""
     for name, (B, psi, p, in_domain), box in CASES:
+        if only not in name:
+            continue
         t0 = time.time()
         w = residuals(B, psi, p, in_domain, box, n_points=n_points)
-        print(f"{name:62s} {float(w['mhs']):10.1e} {float(w['triple']):10.1e} {float(w['frob']):10.1e}   [{time.time() - t0:.0f}s]", flush=True)
+        print(f"{name:68s} {float(w['mhs']):10.1e} {float(w['triple']):10.1e} {float(w['frob']):10.1e}   [{time.time() - t0:.0f}s]", flush=True)
