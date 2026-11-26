@@ -10,6 +10,8 @@ Three systems are compared, with the same normalisation:
   mhs      : equilibrium only (div B = 0, (curl B) x B = grad p)
   qs       : equilibrium + weak quasisymmetry (the system in local_jets.py)
   killing  : qs, plus u required to be a Killing field (rigid motion) to every order
+  iso      : qs, plus |B| constant on each flux surface (isodynamic). Such fields are
+             quasisymmetric near a point for a trivial reason: any u in the surface will do.
 If `qs` and `killing` agree for large K, quasisymmetry is forcing a symmetry locally.
 If `qs` stays well above `killing`, non-symmetric local solutions exist, at least formally.
 
@@ -37,6 +39,15 @@ class Variant(Jets):
             d = self.d
             extra = [(d(u[j], i) + d(u[i], j))[self.eq_mask] for i in range(3) for j in range(i, 3)]
             return np.concatenate([r] + extra)
+        if self.mode == "iso":  # field strength constant on flux surfaces: grad|B|^2 x grad psi = 0
+            d, m = self.d, self.mul
+            B2 = sum(m(B[i], B[i]) for i in range(3))
+            g = self.cross([d(B2, i) for i in range(3)], [d(psi, i) for i in range(3)])
+            # the qs normalisation d_z B_3(0) = 1 says |B| varies along the field line, which
+            # excludes this case; normalise the variation across the surface instead
+            r = r.copy()
+            r[-1] = B[2][self.lin[1]] - 1
+            return np.concatenate([r] + [c[self.eq_mask] for c in g])
         if self.mode == "mhs":  # switch the quasisymmetry equations off by pinning u and psi to zero
             n_eq = int(self.eq_mask.sum())
             keep = np.ones(len(r), dtype=bool)

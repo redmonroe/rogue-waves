@@ -1,0 +1,9 @@
+A rigid-symmetry measure of order 1e-40 means symmetric; of order 0.1, not.
+
+shift, m = 0.3 y (control, symmetric)          all equations exactly zero: True   rigid-symmetry measure: 1.62e-41
+shift, m = y^2                                 all equations exactly zero: True   rigid-symmetry measure: 0.222
+shift, m = sin(2 y) / 2                        all equations exactly zero: True   rigid-symmetry measure: 0.0757
+twist, theta = 0.8 y (control, helical)        all equations exactly zero: True   rigid-symmetry measure: 7.13e-42
+twist, theta = sin y (periodic in y)           all equations exactly zero: True   rigid-symmetry measure: 0.00683
+twist, tan(theta/2) = y (rational field)       all equations exactly zero: True   rigid-symmetry measure: 0.0168
+twist, alpha = beta (control, circular)        all equations exactly zero: True   rigid-symmetry measure: 4.66e-42

@@ -16,7 +16,7 @@ Every rank decision is on a matrix of moderate size with entries of order one, a
 gap between kept and dropped singular values is reported (`min log10 gap`). A gap below about 3
 means the counts at that order should not be trusted.
 
-Usage:  python local_jets_project.py [Kmax] [modes] [seed]     modes: qs,killing (default qs)
+Usage:  python local_jets_project.py [Kmax] [modes] [seed]     modes: qs,killing,iso (default qs)
 """
 import sys
 import time
@@ -36,6 +36,8 @@ def levels(J):
         row_top = np.concatenate([eq_deg] * 9 + [np.ones(6, dtype=int)])
     elif J.mode == "killing":
         row_top = np.concatenate([eq_deg] * 9 + [np.ones(6, dtype=int)] + [eq_deg] * 6)
+    elif J.mode == "iso":
+        row_top = np.concatenate([eq_deg] * 9 + [np.ones(6, dtype=int)] + [eq_deg] * 3)
     else:
         raise ValueError(J.mode)
     assert len(row_top) == m
@@ -102,6 +104,14 @@ def projected_counts(J, x, kmax):
     return [out[k] for k in range(1, kmax + 1)], (min(gaps) if gaps else np.inf)
 
 
+def trust_region(J, x0):
+    """Slower, more robust solve; used when the plain Newton iteration diverges."""
+    from scipy.optimize import least_squares
+    sol = least_squares(J.residual, x0, jac=J.jacobian, method="trf", xtol=1e-15, ftol=1e-15, gtol=1e-15,
+                        max_nfev=400)
+    return sol.x, float(np.linalg.norm(sol.fun)), sol.nfev
+
+
 def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print, ckpt_dir="runs"):
     """Carry one solution up order by order. Each order's solution is saved, so a later run
     (here or on another machine, after a git pull) resumes from the highest saved order."""
@@ -123,8 +133,14 @@ def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print, ckpt_dir="runs"):
             if nr < 1e-10:
                 break
         else:
-            out(f"{mode}: no solution found at order {Kstart}")
-            return
+            for _ in range(5):
+                x0 = np.concatenate([rng.normal(size=n) * 0.5 ** J.deg[m] for m, n in zip(J.masks, J.sizes)])
+                x, nr, _ = trust_region(J, x0)
+                if nr < 1e-10:
+                    break
+            else:
+                out(f"{mode}: no solution found at order {Kstart}")
+                return
         np.save(path(K), x)
     while True:
         t0 = time.time()
@@ -139,6 +155,8 @@ def ladder(mode, Kmax, kmax, seed=0, Kstart=3, out=print, ckpt_dir="runs"):
         xn, nr, it = Jn.solve(rng, x0=Jn.extend_from(J, x, rng, noise=0.0))
         if nr > 1e-10:
             xn, nr, it = Jn.solve(rng, x0=Jn.extend_from(J, x, rng, noise=1e-2))
+        if nr > 1e-10:
+            xn, nr, it = trust_region(Jn, Jn.extend_from(J, x, rng, noise=0.0))
         if nr > 1e-10:
             out(f"{mode:8s} K={K + 1:2d}  could not be extended (residual {nr:.1e} after {it} iterations)")
             return

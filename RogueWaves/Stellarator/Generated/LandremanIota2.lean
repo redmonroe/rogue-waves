@@ -49,7 +49,7 @@ theorem div_free (a b x y z : ℝ)
   have d2 : HasDerivAt (fun t : ℝ => Bz a b x y t) _ z := hasDerivAt_const z ((1 : ℝ) - (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2))))
   rw [d0.deriv, d1.deriv, d2.deriv]
   clear d0 d1 d2
-  simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
+  try simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
   have hFsq := Real.sq_sqrt (le_of_lt h0)
   have hFne := (Real.sqrt_pos.mpr h0).ne'
   generalize hgen_S : (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2))) = S at *
@@ -58,8 +58,7 @@ theorem div_free (a b x y z : ℝ)
   generalize hgen_F : (Real.sqrt (((1 : ℝ) - ((4 : ℝ) * (z ^ 2))) - (((1 : ℝ) - S) ^ 2))) = F at *
   have hF : ((((F ^ 2) + ((4 : ℝ) * (z ^ 2))) + (((1 : ℝ) - S) ^ 2)) - (1 : ℝ)) = 0 := by rw [hFsq]; ring
   refine (?_ : _ = (((((4 : ℝ) * z) * (a ^ 2)) * (b ^ 2)) * ((((S * (a ^ 2)) * (b ^ 2)) - ((a ^ 2) * (y ^ 2))) - ((b ^ 2) * (x ^ 2)))) / (((S ^ 2) * (a ^ 4)) * (b ^ 4))).trans (by rw [hrel_S]; simp)
-  field_simp
-  ring
+  first | (field_simp; ring) | ring | simp
 
 /-- x-component of force balance. -/
 theorem force_x (a b x y z : ℝ)
@@ -72,7 +71,7 @@ theorem force_x (a b x y z : ℝ)
   have d4 : HasDerivAt (fun t : ℝ => P a b t y z) _ x := (((((((((hasDerivAt_id' x)).pow 2).div_const (2 : ℝ)).neg).sub_const ((y ^ 2) / (2 : ℝ))).sub_const ((2 : ℝ) * (z ^ 2))).sub ((((((((hasDerivAt_id' x)).pow 2).div_const (a ^ 2)).const_add ((y ^ 2) / (b ^ 2))).const_sub (1 : ℝ)).pow 2).div_const (2 : ℝ))).sub (((((((((((((((hasDerivAt_id' x)).pow 2).div_const (a ^ 2)).const_add ((y ^ 2) / (b ^ 2))).const_sub (1 : ℝ)).pow 2).const_sub ((1 : ℝ) - ((4 : ℝ) * (z ^ 2)))).sqrt (h0).ne').mul_const b).mul ((hasDerivAt_id' x))).div_const a).add_const (((2 : ℝ) * y) * z)).pow 2).div (((((((hasDerivAt_id' x)).pow 2).div_const (a ^ 2)).const_add ((y ^ 2) / (b ^ 2))).pow 2).const_mul (2 : ℝ)) (mul_ne_zero (by norm_num) (pow_ne_zero 2 h1)))).sub (((((((hasDerivAt_id' x)).const_mul (2 : ℝ)).mul_const z).sub ((((((((((((hasDerivAt_id' x)).pow 2).div_const (a ^ 2)).const_add ((y ^ 2) / (b ^ 2))).const_sub (1 : ℝ)).pow 2).const_sub ((1 : ℝ) - ((4 : ℝ) * (z ^ 2)))).sqrt (h0).ne').mul_const a).mul_const y).div_const b)).pow 2).div (((((((hasDerivAt_id' x)).pow 2).div_const (a ^ 2)).const_add ((y ^ 2) / (b ^ 2))).pow 2).const_mul (2 : ℝ)) (mul_ne_zero (by norm_num) (pow_ne_zero 2 h1)))
   rw [d0.deriv, d1.deriv, d2.deriv, d3.deriv, d4.deriv]
   clear d0 d1 d2 d3 d4
-  simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
+  try simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
   have hFsq := Real.sq_sqrt (le_of_lt h0)
   have hFne := (Real.sqrt_pos.mpr h0).ne'
   generalize hgen_S : (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2))) = S at *
@@ -81,8 +80,7 @@ theorem force_x (a b x y z : ℝ)
   generalize hgen_F : (Real.sqrt (((1 : ℝ) - ((4 : ℝ) * (z ^ 2))) - (((1 : ℝ) - S) ^ 2))) = F at *
   have hF : ((((F ^ 2) + ((4 : ℝ) * (z ^ 2))) + (((1 : ℝ) - S) ^ 2)) - (1 : ℝ)) = 0 := by rw [hFsq]; ring
   refine (?_ : _ = ((((a ^ 7) * (b ^ 4)) * (((((((4 : ℝ) * z) * (a ^ 2)) * (y ^ 3)) + (((((4 : ℝ) * y) * z) * (b ^ 2)) * (x ^ 2))) - ((((F * S) * a) * x) * (b ^ 3))) - ((((((4 : ℝ) * S) * y) * z) * (a ^ 2)) * (b ^ 2)))) * ((((F ^ 2) + ((4 : ℝ) * (z ^ 2))) + (((1 : ℝ) - S) ^ 2)) - (1 : ℝ)) + (((((4 : ℝ) * z) * (a ^ 6)) * (b ^ 4)) * (((((((2 : ℝ) * F) * b) * x) * z) + ((((4 : ℝ) * a) * y) * (z ^ 2))) - ((S * a) * y))) * ((((S * (a ^ 2)) * (b ^ 2)) - ((a ^ 2) * (y ^ 2))) - ((b ^ 2) * (x ^ 2)))) / (((F * (S ^ 3)) * (a ^ 8)) * (b ^ 7))).trans (by rw [hF, hrel_S]; simp)
-  field_simp
-  ring
+  first | (field_simp; ring) | ring | simp
 
 /-- y-component of force balance. -/
 theorem force_y (a b x y z : ℝ)
@@ -95,7 +93,7 @@ theorem force_y (a b x y z : ℝ)
   have d4 : HasDerivAt (fun t : ℝ => P a b x t z) _ y := ((((((((hasDerivAt_id' y)).pow 2).div_const (2 : ℝ)).const_sub (-((x ^ 2) / (2 : ℝ)))).sub_const ((2 : ℝ) * (z ^ 2))).sub ((((((((hasDerivAt_id' y)).pow 2).div_const (b ^ 2)).add_const ((x ^ 2) / (a ^ 2))).const_sub (1 : ℝ)).pow 2).div_const (2 : ℝ))).sub (((((((((((((((hasDerivAt_id' y)).pow 2).div_const (b ^ 2)).add_const ((x ^ 2) / (a ^ 2))).const_sub (1 : ℝ)).pow 2).const_sub ((1 : ℝ) - ((4 : ℝ) * (z ^ 2)))).sqrt (h0).ne').mul_const b).mul_const x).div_const a).add ((((hasDerivAt_id' y)).const_mul (2 : ℝ)).mul_const z)).pow 2).div (((((((hasDerivAt_id' y)).pow 2).div_const (b ^ 2)).add_const ((x ^ 2) / (a ^ 2))).pow 2).const_mul (2 : ℝ)) (mul_ne_zero (by norm_num) (pow_ne_zero 2 h1)))).sub (((((((((((((((hasDerivAt_id' y)).pow 2).div_const (b ^ 2)).add_const ((x ^ 2) / (a ^ 2))).const_sub (1 : ℝ)).pow 2).const_sub ((1 : ℝ) - ((4 : ℝ) * (z ^ 2)))).sqrt (h0).ne').mul_const a).mul ((hasDerivAt_id' y))).div_const b).const_sub (((2 : ℝ) * x) * z)).pow 2).div (((((((hasDerivAt_id' y)).pow 2).div_const (b ^ 2)).add_const ((x ^ 2) / (a ^ 2))).pow 2).const_mul (2 : ℝ)) (mul_ne_zero (by norm_num) (pow_ne_zero 2 h1)))
   rw [d0.deriv, d1.deriv, d2.deriv, d3.deriv, d4.deriv]
   clear d0 d1 d2 d3 d4
-  simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
+  try simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
   have hFsq := Real.sq_sqrt (le_of_lt h0)
   have hFne := (Real.sqrt_pos.mpr h0).ne'
   generalize hgen_S : (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2))) = S at *
@@ -104,8 +102,7 @@ theorem force_y (a b x y z : ℝ)
   generalize hgen_F : (Real.sqrt (((1 : ℝ) - ((4 : ℝ) * (z ^ 2))) - (((1 : ℝ) - S) ^ 2))) = F at *
   have hF : ((((F ^ 2) + ((4 : ℝ) * (z ^ 2))) + (((1 : ℝ) - S) ^ 2)) - (1 : ℝ)) = 0 := by rw [hFsq]; ring
   refine (?_ : _ = ((-(((a ^ 4) * (b ^ 7)) * (((((((F * S) * b) * y) * (a ^ 3)) + (((((4 : ℝ) * x) * z) * (a ^ 2)) * (y ^ 2))) + ((((4 : ℝ) * z) * (b ^ 2)) * (x ^ 3))) - ((((((4 : ℝ) * S) * x) * z) * (a ^ 2)) * (b ^ 2))))) * ((((F ^ 2) + ((4 : ℝ) * (z ^ 2))) + (((1 : ℝ) - S) ^ 2)) - (1 : ℝ)) + (-(((((4 : ℝ) * z) * (a ^ 4)) * (b ^ 6)) * ((((((4 : ℝ) * b) * x) * (z ^ 2)) - (((((2 : ℝ) * F) * a) * y) * z)) - ((S * b) * x)))) * ((((S * (a ^ 2)) * (b ^ 2)) - ((a ^ 2) * (y ^ 2))) - ((b ^ 2) * (x ^ 2)))) / (((F * (S ^ 3)) * (a ^ 7)) * (b ^ 8))).trans (by rw [hF, hrel_S]; simp)
-  field_simp
-  ring
+  first | (field_simp; ring) | ring | simp
 
 /-- z-component of force balance. -/
 theorem force_z (a b x y z : ℝ)
@@ -118,7 +115,7 @@ theorem force_z (a b x y z : ℝ)
   have d4 : HasDerivAt (fun t : ℝ => P a b x y t) _ z := (((((((hasDerivAt_id' z)).pow 2).const_mul (2 : ℝ)).const_sub ((-((x ^ 2) / (2 : ℝ))) - ((y ^ 2) / (2 : ℝ)))).sub_const ((((1 : ℝ) - (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2)))) ^ 2) / (2 : ℝ))).sub (((((((((((((hasDerivAt_id' z)).pow 2).const_mul (4 : ℝ)).const_sub (1 : ℝ)).sub_const (((1 : ℝ) - (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2)))) ^ 2)).sqrt (h0).ne').mul_const b).mul_const x).div_const a).add (((hasDerivAt_id' z)).const_mul ((2 : ℝ) * y))).pow 2).div_const ((2 : ℝ) * ((((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2))) ^ 2)))).sub ((((((hasDerivAt_id' z)).const_mul ((2 : ℝ) * x)).sub ((((((((((hasDerivAt_id' z)).pow 2).const_mul (4 : ℝ)).const_sub (1 : ℝ)).sub_const (((1 : ℝ) - (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2)))) ^ 2)).sqrt (h0).ne').mul_const a).mul_const y).div_const b)).pow 2).div_const ((2 : ℝ) * ((((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2))) ^ 2)))
   rw [d0.deriv, d1.deriv, d2.deriv, d3.deriv, d4.deriv]
   clear d0 d1 d2 d3 d4
-  simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
+  try simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, Bx, By, Bz, P]
   have hFsq := Real.sq_sqrt (le_of_lt h0)
   have hFne := (Real.sqrt_pos.mpr h0).ne'
   generalize hgen_S : (((y ^ 2) / (b ^ 2)) + ((x ^ 2) / (a ^ 2))) = S at *
@@ -127,8 +124,7 @@ theorem force_z (a b x y z : ℝ)
   generalize hgen_F : (Real.sqrt (((1 : ℝ) - ((4 : ℝ) * (z ^ 2))) - (((1 : ℝ) - S) ^ 2))) = F at *
   have hF : ((((F ^ 2) + ((4 : ℝ) * (z ^ 2))) + (((1 : ℝ) - S) ^ 2)) - (1 : ℝ)) = 0 := by rw [hFsq]; ring
   refine (?_ : _ = (((((((4 : ℝ) * F) * S) * z) * (a ^ 4)) * (b ^ 4)) * ((((S * (a ^ 2)) * (b ^ 2)) - ((a ^ 2) * (y ^ 2))) - ((b ^ 2) * (x ^ 2)))) / (((F * (S ^ 2)) * (a ^ 6)) * (b ^ 6))).trans (by rw [hrel_S]; simp)
-  field_simp
-  ring
+  first | (field_simp; ring) | ring | simp
 
 end Stellarator.Generated.LandremanIota2
 

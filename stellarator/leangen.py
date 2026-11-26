@@ -275,7 +275,7 @@ class LeanGen:
             lines.append("  rw [" + ", ".join(f"d{i}.deriv" for i in range(len(used))) + "]")
             lines.append("  clear " + " ".join(f"d{i}" for i in range(len(used))))
         # the inferred derivative values contain unreduced `(fun t => ..) x`, `↑2` and `^ (2 - 1)`
-        lines.append("  simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, "
+        lines.append("  try simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply, Pi.pow_apply, Pi.div_apply, "
                      "Pi.neg_apply, Nat.cast_ofNat, Nat.add_one_sub_one, Nat.reduceSub, pow_one, mul_one, one_mul, "
                      + ", ".join(self.defs) + "]")
 
@@ -320,7 +320,7 @@ class LeanGen:
                            for q, rel, _ in live)
             Dl = show(self.build(sp.factor(mult * denom)), gen_ren)
             lines.append(f"  refine (?_ : _ = ({Z}) / {Dl}).trans (by rw [" + ", ".join(h for _, _, h in live) + "]; simp)")
-        lines += ["  field_simp", "  ring"]
+        lines += ["  first | (field_simp; ring) | ring | simp"]
 
         hyps = " ".join(f"({h} : {'0 < ' + s if kind == 'pos' else s + ' ≠ 0'})" for (kind, s), h in self._hyps.items())
         args = " ".join(str(s) for s in self.params + self.coords)
