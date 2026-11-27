@@ -19,25 +19,19 @@ symmetry error vanishes identically.
 
 In order. Move an item to the log when it is done.
 
-1. **Strong form with force balance: from evidence to proof.** State of play: every numerical
-   solution carried to order 9 is symmetric (40 digits where polished); exact arithmetic shows
-   nothing branches off three types of symmetric equilibrium to first order; the literature
-   says the question is open (log, "Literature: what is known"). Next, in order:
+1. **Strong form with force balance ("bottom-right cell"): from evidence to proof.** No proof
+   yet. The claim is a local form of the Garren-Boozer conjecture (1991) and is open (log,
+   "Bottom-right cell"). In order:
    (a) in progress: sixteen-seed batch on the Mac (`runs/hp_strong_mac.txt`);
-   (b) use the structure result of Burby et al. 2024 (B lies along the null direction of the
-   strain of u; trace and determinant of the strain vanish) together with
-   curl B = -C'(psi) B - p'(psi) u to look for a proof by hand or by computer algebra that the
-   strain must vanish when |B| varies along B. (Adding these to the local test gains nothing:
-   S . B = 0 is already a combination of the equations imposed there, at the same degree.)
-   Six equations for the three components of u, so a proof by elimination is plausible but
-   the experts have not found one since 2020;
+   (b) smallest open sub-case, to try by hand: vacuum with u . B = 0. Statement: Phi harmonic,
+   psi constant along grad Phi, and |grad Phi| a function of (psi, Phi) only. Show Phi has a
+   rigid symmetry. Then vacuum with u . B = C not zero;
    (c) first-order question over the rationals with certificates, then Lean, at one
-   equilibrium; and the exact first-order test at a screw-symmetric equilibrium with non-planar
-   field lines;
-   (d) state the conjecture correctly. "u is a rigid motion" is false as stated: B = g(x, y) e_z
-   is an equilibrium, and u = e_z x grad g is a strong quasisymmetry that is not rigid. That
-   field has |B| constant along B and is symmetric in z. The local test excludes it by its
-   normalisation (|B| varies along B at the origin).
+   equilibrium. Note the first-order test fails at u . B = 0 (two extra directions, removed
+   only at second order), so a proof by linearisation alone cannot cover that case;
+   (d) a note to the people working on this (Burby, MacKay, Sengupta and co-authors) with the
+   two exact families and the order-9 evidence: they are attacking the same question with
+   Cartan-Kahler methods.
 2. **Recipe type 2, continued: look for a version with rotational transform.** The planar
    family works because the symmetry flow is a rigid motion on each plane and B lies in the
    planes. Try: symmetry fields of the form u = K0 + f K1 + ... (K rigid motions, f functions),
@@ -520,6 +514,65 @@ three conditions, so their theorem says which B goes with it.
   known. The examples are elementary and specialists may know them or regard them as trivial;
   see the open questions.
 Evidence: `stellarator/radial_twist_output.txt`, `RogueWaves/Stellarator/Generated/RadialTwist.lean`.
+
+**Bottom-right cell (force balance + strong quasisymmetry): what is to be proved, a smaller
+test, and where a proof stands.**
+Checked first that nothing published contradicts the claim: Sengupta et al. 2021
+(arXiv:2011.08149) have exact quasisymmetry on one surface only; Sengupta et al. 2026
+(arXiv:2610.28466) have exact vacuum fields with nested surfaces and no symmetry, but not
+quasisymmetric (they say so).
+
+Reductions, by hand (not machine-checked unless stated):
+- Strong quasisymmetry gives S . B = 0 and trace S = 0 (S = strain of u; Burby et al. 2024). So
+  u is a rigid motion as soon as S . V = 0 for one vector V not along B. Equivalent: grad psi,
+  or grad |B|, is carried along by the flow of u.
+- With force balance, curl B = -C'(psi) B - p'(psi) u (logged before). Without it, u . B need
+  not be constant on flux surfaces.
+- Vacuum: B = grad Phi, and the whole system is
+      Laplace(Phi) = 0,   grad psi . grad Phi = 0,   Hess Phi (u, B) = 0,
+      u = (C grad Phi + grad psi x grad Phi) / |grad Phi|^2,   C a constant.
+  Two unknown functions and a constant. Machine check: the residuals vanish on an exact
+  translation-symmetric solution (`local_vacuum.py --check`).
+- Counting at order K in vacuum (free coefficients against equations): 116 / 84 at order 7,
+  144 / 120 at 8, 175 / 165 at 9, 209 / 220 at 10. So the system runs out of freedom at orders
+  9 to 10, which is where the runs turn symmetric. This is Garren and Boozer's counting
+  argument, at an ordinary point instead of on the magnetic axis. Symmetric solutions survive
+  because for them the equations are in two variables. The open question is whether anything
+  else survives by accident.
+
+Vacuum test (`local_vacuum.py`; about 500 unknowns at order 9 against 1700 in the general test):
+- From random starts: orders 6 and 7, 13 of 24 converge, all non-symmetric (asymmetry 0.02 to
+  2.5). Orders 8 and 9, 0 of 24 converge.
+- Ladders from order 6 (8 of 16 starts converged there): at order 8 the six that got there are
+  still non-symmetric (0.03 to 0.26). At order 9 five converge and all five are symmetric; one
+  did not converge (asymmetry 0.06 and falling), one diverged. They stay symmetric at orders
+  10 and 11.
+- Two of the five have u . B not zero and u a rigid motion (strain 1e-12 or less).
+- Three have u . B = 0. There u is a function of psi times a rigid motion, so its strain is not
+  zero; that is the known relabelling freedom, not a new solution.
+- Two of those three stopped at asymmetry 1e-7, not 1e-13. Checked at 50 digits
+  (`local_vacuum_c0.py`): the asymmetry halves at every Newton step and the residual falls by
+  four, down to 4e-10 where the method runs out of resolution. So the exact solution is
+  symmetric, and it is a double root: 1e-7 is the square root of the rounding level.
+- Consequence: at symmetric solutions with u . B = 0 the first-order test is not rigid (two
+  extra first-order directions, removed at second order). The exact first-order results logged
+  earlier were all at u . B not zero.
+Evidence: `stellarator/runs/vacuum_scratch.txt`, `runs/vacuum_ladder.txt`,
+`runs/vacuum_c0_check.txt`.
+
+Where a proof stands: not found.
+- By elimination: the conditions on the lowest coefficients only appear after all coefficients
+  up to order 8 or 9 have been eliminated (384 unknowns in vacuum). Exact elimination at that
+  size is out of reach by brute force, and the modular method needs exact points on the
+  solution set, which we only have for symmetric solutions.
+- By an identity: none found. Tried: the invariant forms d psi, d|B|, B-flat and what force
+  balance adds to them (everything first-order is already used; the constraint is in the
+  second-order, flatness, conditions); ellipsoidal equipotentials as a possible counterexample
+  (fails, as expected).
+- By hand, unchecked: the problem is equivalent to classifying flat metrics whose inverse, in
+  the coframe (d psi, d|B|, B-flat), has the form [[X, Y, 0], [Y, Z, f], [0, f, |B|^2]] with f a
+  function of (psi, |B|) and fixed determinant; the claim is that X and Y cannot depend on the
+  third coordinate. Two unknown functions, three independent flatness equations.
 
 **The strong system, reduced by hand (not machine-checked).**
 With force balance, strong quasisymmetry, and u . grad p = 0: curl B = -C'(psi) B - p'(psi) u

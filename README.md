@@ -31,6 +31,8 @@ From `stellarator/`, with `PY=../.venv/bin/python`:
     $PY local_strong_ladder.py 4 9 1        # strong form: carry the saved seed-1 solution up, with counts
     $PY planar_family.py                    # exact non-symmetric quasisymmetric families: check all equations
     $PY gen_twisted_pinch.py                # regenerate the Lean certificate for the twisted pinch
+    OMP_NUM_THREADS=1 $PY local_vacuum.py --ladder --kmin 6 --kmax 11 --seeds 0:16   # vacuum case of the strong form
+    OMP_NUM_THREADS=3 $PY local_vacuum_c0.py   # the double root at u . B = 0, at 50 digits
     $PY radial_twist.py                     # strong quasisymmetry without force balance: exact non-symmetric fields
     $PY gen_radial_twist.py                 # regenerate the Lean certificate for the radial twisted field
     $PY scan_iota2.py                       # scan the whole two-parameter iota=2 family (seconds)
