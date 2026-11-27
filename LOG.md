@@ -574,6 +574,18 @@ Where a proof stands: not found.
   function of (psi, |B|) and fixed determinant; the claim is that X and Y cannot depend on the
   third coordinate. Two unknown functions, three independent flatness equations.
 
+**Smallest open sub-case, set up by hand (unchecked): vacuum with u . B = 0.**
+Picture: the surfaces Phi = const (equipotentials) move along their normals with speed
+L = 1 / |grad Phi|; psi is a label carried along the normals. The conditions become, on every
+equipotential:
+- L is a function of psi (and Phi) only;
+- the mean curvature is a function of psi only (this is Laplace's equation);
+- Laplacian_on_surface(L) - 2 (Gauss curvature) L is a function of psi only (this is the rate of
+  change of the mean curvature).
+Each further derivative in Phi gives one more quantity that must be a function of psi only:
+infinitely many conditions on one surface and one function on it. On a surface of revolution
+with psi constant on the circles they all hold. To prove: nothing else satisfies them.
+
 **The strong system, reduced by hand (not machine-checked).**
 With force balance, strong quasisymmetry, and u . grad p = 0: curl B = -C'(psi) B - p'(psi) u
 with C = u . B. So u is determined by B, and the whole system is
